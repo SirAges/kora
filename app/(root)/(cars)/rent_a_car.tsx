@@ -30,10 +30,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { truncate, formatDateTime, formatAmount } from "@/lib/utils";
 import { Image } from "expo-image";
-import { cars } from "@/lib/data";
+import { cars, paymentMethods } from "@/lib/data";
 import { useLocalSearchParams } from "expo-router";
 import { useSelector, useDispatch } from "react-redux";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { selectCurrentBooking, addToBooking } from "@/redux/globalSlice";
 import CustomFormField, { FormFieldType } from "@/components/CustomFormField";
 const RentACar = () => {
@@ -157,54 +158,47 @@ const RentACar = () => {
                     className="rounded-md border border-gray-200 px-2 py-2
                 my-2"
                 >
-                    <View
-                        className="flex-row items-center justify-between
-                    border-b border-gray-100 py-2"
+                    <SelectModal
+                        field="payment_method"
+                        selected={car?.payment_method}
+                        data={paymentMethods}
+                    >
+                        <MaterialIcons
+                            name="payment"
+                            size={20}
+                            color={iconColor}
+                        />
+                        <ThemedText
+                            className="flex-1 px2  py-2
+                            font-semibold text-md"
+                        >
+                            Payment method
+                        </ThemedText>
+                    </SelectModal>
+                </View>
+                <View
+                    className="rounded-md border border-gray-200 px-2 py-2
+                my-2"
+                >
+                    <SelectModal
+                        field="promo_code"
+                        selected={car?.promo_code}
+                        data={paymentMethods}
                     >
                         <MaterialCommunityIcons
                             name="gift-outline"
                             size={20}
                             color={iconColor}
                         />
-                        <ThemedText type="title" className="flex-1 px-2">
-                            Discount/Voucher
-                        </ThemedText>
-                        <MaterialCommunityIcons
-                            name="chevron-right"
-                            size={24}
-                            color={iconColor}
-                        />
-                    </View>
-                    <View className="flex-row items-center py-2">
-                        <View
-                            style={{ backgroundColor: card }}
-                            className="rounded-full w-12 h-12 items-center
-                            justify-center"
+                        <ThemedText
+                            className="flex-1 px2  py-2
+                            font-semibold text-md"
                         >
-                            <MaterialCommunityIcons
-                                name="medal-outline"
-                                size={20}
-                                color={iconColor}
-                            />
-                        </View>
-                        <View className="flex-1 px-2">
-                            <ThemedText>
-                                15% OFF. Active User Promo Coupon
-                            </ThemedText>
-                            <ThemedText
-                                style={{ color: color + 70 }}
-                                className=""
-                            >
-                                This promo discount is for active users
-                            </ThemedText>
-                        </View>
-                        <MaterialCommunityIcons
-                            name="trash-can-outline"
-                            size={20}
-                            color={iconColor}
-                        />
-                    </View>
+                            Voucher/Discount
+                        </ThemedText>
+                    </SelectModal>
                 </View>
+
                 <View
                     className="rounded-md border border-gray-200 px-2 py-2
                 my-2"

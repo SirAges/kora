@@ -1,3 +1,75 @@
+export const paymentMethods = [
+    {
+        name: "Visa",
+        slug: "visa",
+        image: require("@/assets/images/visa.png"),
+        description:
+            "A popular method using credit cards issued by banks to make payments online or in-store."
+    },
+    {
+        name: "Master card",
+        slug: "master_card",
+        image: require("@/assets/images/mastercard.jpg"),
+        description:
+            "A popular method using credit cards issued by banks to make payments online or in-store."
+    },
+    {
+        name: "PayPal",
+        slug: "paypal",
+        image: require("@/assets/images/paypal.png"),
+        description:
+            "An online payment system that allows users to make payments securely using their email address and password."
+    },
+    {
+        name: "Apple Pay",
+        slug: "apple_pay",
+        image: require("@/assets/images/apple.jpg"),
+        description:
+            "A mobile payment service allowing users to make payments using their Apple devices."
+    },
+    {
+        name: "Google Pay",
+        slug: "google_pay",
+        image: require("@/assets/images/google.png"),
+        description:
+            "A digital wallet platform by Google for fast, easy, and secure payments on Android devices."
+    },
+    {
+        name: "American Express",
+        slug: "american_express",
+        image: require("@/assets/images/american.png"),
+        description:
+            "A digital wallet platform by Google for fast, easy, and secure payments on Android devices."
+    },
+    {
+        name: "Bank Transfer",
+        slug: "bank_transfer",
+        image: require("@/assets/images/bank.jpg"),
+        description:
+            "Direct transfer of funds from one bank account to another for payments."
+    },
+    {
+        name: "Bitcoin",
+        slug: "bitcoin",
+        image: require("@/assets/images/bitcoin.png"),
+        description:
+            "A decentralized digital currency allowing peer-to-peer transactions without a central authority."
+    },
+    {
+        name: "Stripe",
+        slug: "stripe",
+        image: require("@/assets/images/stripe.png"),
+        description:
+            "A comprehensive payment platform that allows businesses to accept online payments with various methods."
+    },
+    {
+        name: "Amazon Pay",
+        slug: "amazon_pay",
+        image: require("@/assets/images/amazon.jpg"),
+        description:
+            "A payment service that lets users make payments using their Amazon accounts."
+    }
+];
 export const insurance_list = [
     {
         _id: "insuranceid1",
@@ -1029,7 +1101,7 @@ export const cars = [
                     "Built-in navigation system with live traffic updates."
             }
         ],
-        drivers: ["driver2id","driver1id","driver3id"],
+        drivers: ["driver2id", "driver1id", "driver3id"],
         pending_drivers: ["driver1id"]
     },
     {
