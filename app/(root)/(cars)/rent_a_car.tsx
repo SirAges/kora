@@ -43,7 +43,7 @@ const RentACar = () => {
     const iconColor = useThemeColor({}, "icon");
     const card = useThemeColor({}, "card");
     const color = useThemeColor({}, "text");
-    const { car, days, insurance, i_am_driver, driver, self_driver } =
+    const { car, days, insurance, i_am_driver, driver,promo_code,payment_method, self_driver } =
         useSelector(selectCurrentBooking);
     const booking = useSelector(selectCurrentBooking);
     console.log("booking", JSON.stringify(booking, null, 2));
@@ -137,7 +137,7 @@ const RentACar = () => {
                     ) : (
                         <SelectModal
                             field="driver"
-                            selected={car?.driver}
+                            selected={driver}
                             data={car?.drivers}
                         >
                             <MaterialCommunityIcons
@@ -160,7 +160,7 @@ const RentACar = () => {
                 >
                     <SelectModal
                         field="payment_method"
-                        selected={car?.payment_method}
+                        selected={payment_method}
                         data={paymentMethods}
                     >
                         <MaterialIcons
@@ -182,7 +182,7 @@ const RentACar = () => {
                 >
                     <SelectModal
                         field="promo_code"
-                        selected={car?.promo_code}
+                        selected={promo_code}
                         data={paymentMethods}
                     >
                         <MaterialCommunityIcons
@@ -199,65 +199,14 @@ const RentACar = () => {
                     </SelectModal>
                 </View>
 
-                <View
-                    className="rounded-md border border-gray-200 px-2 py-2
-                my-2"
-                >
-                    <View
-                        className="flex-row items-center justify-between
-                    border-b border-gray-100 py-2"
-                    >
-                        <MaterialCommunityIcons
-                            name="gift-outline"
-                            size={20}
-                            color={iconColor}
-                        />
-                        <ThemedText type="title" className="flex-1 px-2">
-                            Discount/Voucher
-                        </ThemedText>
-                        <MaterialCommunityIcons
-                            name="chevron-right"
-                            size={24}
-                            color={iconColor}
-                        />
-                    </View>
-                    <View className="flex-row items-center py-2">
-                        <View
-                            style={{ backgroundColor: card }}
-                            className="rounded-full w-12 h-12 items-center
-                            justify-center"
-                        >
-                            <MaterialCommunityIcons
-                                name="medal-outline"
-                                size={20}
-                                color={iconColor}
-                            />
-                        </View>
-                        <View className="flex-1 px-2">
-                            <ThemedText>
-                                15% OFF. Active User Promo Coupon
-                            </ThemedText>
-                            <ThemedText
-                                style={{ color: color + 70 }}
-                                className=""
-                            >
-                                This promo discount is for active users
-                            </ThemedText>
-                        </View>
-                        <MaterialCommunityIcons
-                            name="trash-can-outline"
-                            size={20}
-                            color={iconColor}
-                        />
-                    </View>
-                </View>
+               
             </ScrollView>
         </SafeAreaView>
     );
 };
 
 export default RentACar;
-const AvailableCard = ({ item, days }) => {
+const AvailableCard = ({ item,  }) => {
     const backgroundColor = useThemeColor({}, "card");
     const iconColor = useThemeColor({}, "icon");
     const card = useThemeColor({}, "card");
