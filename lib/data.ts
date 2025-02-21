@@ -1,3 +1,84 @@
+export const promoCodes = [
+    {
+        name: "First Ride Free",
+        slug: "first-ride-free",
+        description:
+            "Enjoy your first ride with us for free! Applicable to new users only.",
+        image: require("@/assets/images/car3.jpg"),
+        percentage: 0
+    },
+    {
+        name: "Weekend Getaway",
+        slug: "weekend-getaway",
+        description:
+            "Get 20% off on car rentals for weekend trips from Friday to Sunday.",
+        image: require("@/assets/images/car5.jpg"),
+        percentage: 20
+    },
+    {
+        name: "Long Trip Discount",
+        slug: "long-trip-discount",
+        description:
+            "Book for 3 days or more and get 15% off on your total fare.",
+        image: require("@/assets/images/car6.jpg"),
+        percentage: 15
+    },
+    {
+        name: "Refer & Earn",
+        slug: "refer-and-earn",
+        description:
+            "Refer a friend and both of you get 5% off your next ride.",
+        image: require("@/assets/images/car5.jpg"),
+        percentage: 5
+    },
+    {
+        name: "Loyalty Reward",
+        slug: "loyalty-reward",
+        description:
+            "Ride with us 5 times and get a free ride on your 6th booking.",
+        image: require("@/assets/images/car8.jpg"),
+        percentage: 0
+    },
+    {
+        name: "Airport Transfer Deal",
+        slug: "airport-transfer-deal",
+        description: "Flat 10% off on airport pick-ups and drop-offs.",
+        image: require("@/assets/images/car3.jpg"),
+        percentage: 10
+    },
+    {
+        name: "Driver Hire Discount",
+        slug: "driver-hire-discount",
+        description: "Get 5% off when you book a driver for 6 hours or more.",
+        image: require("@/assets/images/car8.jpg"),
+        percentage: 5
+    },
+    {
+        name: "Holiday Special",
+        slug: "holiday-special",
+        description:
+            "Enjoy a 25% discount on car rentals during festive seasons.",
+        image: require("@/assets/images/car7.jpg"),
+        percentage: 25
+    },
+    {
+        name: "Corporate Booking Offer",
+        slug: "corporate-booking-offer",
+        description:
+            "Special rates for businesses booking 3 or more cars at once.",
+        image: require("@/assets/images/car4.jpg"),
+        percentage: 10
+    },
+    {
+        name: "Night Ride Savings",
+        slug: "night-ride-savings",
+        description:
+            "Book a ride between 10 PM and 5 AM and get 12% off your fare.",
+        image: require("@/assets/images/car3.jpg"),
+        percentage: 12
+    }
+];
+
 export const paymentMethods = [
     {
         name: "Visa",

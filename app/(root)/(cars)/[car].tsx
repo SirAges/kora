@@ -27,7 +27,6 @@ const Car = () => {
     const { car: carId } = useLocalSearchParams();
     const dispatch = useDispatch();
     const book = useSelector(selectCurrentBooking);
-    console.log("book", book);
     const [car, setCar] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
     const [imageIndex, setImageIndex] = useState(0);

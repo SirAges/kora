@@ -1,3 +1,4 @@
+import {promoCodes}from "./data"
 export const calculateDateDifference = (start, end) => {
     if (!start || !end) return "";
 
@@ -100,3 +101,13 @@ export function formatAmount(amount: number): string {
 
     return formatter.format(amount);
 }
+export const applyPromoCode = (price, slug) => {
+    const promo = promoCodes.find(promo => promo.slug === slug);
+
+    if (!promo) {
+        return price; // Return the original price if the promo code is not found
+    }
+
+    const discount = (promo.percentage / 100) * price;
+    return price - discount; // Return the new discounted price
+};

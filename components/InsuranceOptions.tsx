@@ -12,27 +12,44 @@ import { addToBooking, selectCurrentBooking } from "@/redux/globalSlice";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 const InsuranceOptions = ({ insurance }) => {
     const selectedInsurance = useSelector(selectCurrentBooking)?.insurance?._id;
+    console.log("insurance", insurance);
     const dispatch = useDispatch();
+
+    const iconColor = useThemeColor({}, "icon");
     useEffect(() => {
-        dispatch(addToBooking({ insurance: insurance_list[0] }));
+        dispatch(
+            addToBooking({
+                insurance:{ ...insurance[0],
+                name: insurance_list[0].name,
+                description: insurance_list[0].description
+           } })
+        );
         return () => {};
     }, []);
-    const iconColor = useThemeColor({}, "icon");
-    const RenderInsurance = ({ price_per_day, id }) => {
-        const item = insurance_list.find(({ _id }) => _id === id);
+    const RenderInsurance = ({ price_per_day, _id }) => {
+        const item = insurance_list.find(f => f?._id === _id);
 
         return (
             item && (
                 <>
                     <TouchableOpacity
                         onPress={() =>
-                            dispatch(addToBooking({ insurance: item }))
+                            dispatch(
+                                addToBooking({
+                                    insurance: {
+                                        _id,
+                                        price_per_day,
+                                        name: item.name,
+                                        description: item.description
+                                    }
+                                })
+                            )
                         }
                     >
                         <View className="flex-row items-center space-x-2 py-2 px-2">
                             <MaterialCommunityIcons
                                 name={
-                                    selectedInsurance === id
+                                    selectedInsurance === _id
                                         ? "radiobox-marked"
                                         : "radiobox-blank"
                                 }
@@ -88,7 +105,7 @@ const InsuranceOptions = ({ insurance }) => {
                     <View key={_id}>
                         <RenderInsurance
                             price_per_day={price_per_day}
-                            id={_id}
+                            _id={_id}
                         />
                     </View>
                 ))}

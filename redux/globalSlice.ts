@@ -18,7 +18,8 @@ const initialState = {
                 "Nyanya, Municipal Area Council, Federal Capital Territory, Nigeria",
             lat: 9.0212556,
             lng: 7.5699144
-        }
+        },
+        tax:12
     }
 };
 

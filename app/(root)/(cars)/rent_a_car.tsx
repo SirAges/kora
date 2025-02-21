@@ -21,6 +21,7 @@ import {
 import ThemedCard from "@/components/ThemedCard";
 import ThemedText from "@/components/ThemedText";
 import ThemedView from "@/components/ThemedView";
+import ThemedButton from "@/components/ThemedButton";
 import ThemedModal from "@/components/ThemedModal";
 import SelectModal from "@/components/SelectModal";
 import Accordion from "@/components/Accordion";
@@ -28,9 +29,14 @@ import GoBack from "@/components/GoBack";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { truncate, formatDateTime, formatAmount } from "@/lib/utils";
+import {
+    truncate,
+    formatDateTime,
+    formatAmount,
+    applyPromoCode
+} from "@/lib/utils";
 import { Image } from "expo-image";
-import { cars, paymentMethods } from "@/lib/data";
+import { cars, paymentMethods, promoCodes } from "@/lib/data";
 import { useLocalSearchParams } from "expo-router";
 import { useSelector, useDispatch } from "react-redux";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -43,8 +49,17 @@ const RentACar = () => {
     const iconColor = useThemeColor({}, "icon");
     const card = useThemeColor({}, "card");
     const color = useThemeColor({}, "text");
-    const { car, days, insurance, i_am_driver, driver,promo_code,payment_method, self_driver } =
-        useSelector(selectCurrentBooking);
+    const {
+        car,
+        days,
+        tax,
+        insurance,
+        i_am_driver,
+        driver,
+        promo_code,
+        payment_method,
+        self_driver
+    } = useSelector(selectCurrentBooking);
     const booking = useSelector(selectCurrentBooking);
     console.log("booking", JSON.stringify(booking, null, 2));
 
@@ -99,15 +114,17 @@ const RentACar = () => {
                             color={iconColor}
                         />
                         <ThemedText type="semibold" className="flex-1 px-2">
-                            {insurance.name}
+                            {insurance?.name}
                         </ThemedText>
                         <ThemedText>
-                            {formatAmount(insurance.price_per_day)}
+                            {formatAmount(
+                                insurance?.price_per_day * parseInt(days)
+                            )}
                         </ThemedText>
                     </View>
                     <View className=" flex-row">
                         <ThemedText type="" className="flex-1 pr-2">
-                            {insurance.description}
+                            {insurance?.description}
                         </ThemedText>
                         <ThemedText type="px-2">{days}</ThemedText>
                     </View>
@@ -176,14 +193,11 @@ const RentACar = () => {
                         </ThemedText>
                     </SelectModal>
                 </View>
-                <View
-                    className="rounded-md border border-gray-200 px-2 py-2
-                my-2"
-                >
+                <View className="rounded-md border border-gray-200 px-2 py-2">
                     <SelectModal
                         field="promo_code"
                         selected={promo_code}
-                        data={paymentMethods}
+                        data={promoCodes}
                     >
                         <MaterialCommunityIcons
                             name="gift-outline"
@@ -198,15 +212,49 @@ const RentACar = () => {
                         </ThemedText>
                     </SelectModal>
                 </View>
-
-               
+                <View
+                    className="rounded-md border border-gray-200 px-2 py-2
+                my-2"
+                >
+                    <View className="flex-row items-center justify-between">
+                        <ThemedText className="font-semibold">
+                            Amount
+                        </ThemedText>
+                        <ThemedText>{`${formatAmount(
+                            car.price_per_day * parseInt(days)
+                        )} (${parseInt(days)} days)`}</ThemedText>
+                    </View>
+                    <View className="flex-row items-center justify-between">
+                        <ThemedText className="font-semibold capitalize">
+                            Insurance {insurance?.name}
+                        </ThemedText>
+                        <ThemedText>
+                            {formatAmount(
+                                insurance?.price_per_day * parseInt(days)
+                            )}
+                        </ThemedText>
+                    </View>
+                    <View className="flex-row items-center justify-between">
+                        <ThemedText className="font-semibold capitalize">
+                            Tax
+                        </ThemedText>
+                        <ThemedText>{formatAmount(tax)}</ThemedText>
+                    </View>
+                    <View className="flex-row items-center justify-between">
+                        <ThemedText className="font-semibold capitalize">
+                            Tax
+                        </ThemedText>
+                        <ThemedText>{formatAmount(tax)}</ThemedText>
+                    </View>
+                </View>
             </ScrollView>
+            <ThemedButton title="Book car" />
         </SafeAreaView>
     );
 };
 
 export default RentACar;
-const AvailableCard = ({ item,  }) => {
+const AvailableCard = ({ item }) => {
     const backgroundColor = useThemeColor({}, "card");
     const iconColor = useThemeColor({}, "icon");
     const card = useThemeColor({}, "card");
