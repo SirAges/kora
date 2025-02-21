@@ -12,7 +12,6 @@ import { addToBooking, selectCurrentBooking } from "@/redux/globalSlice";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 const InsuranceOptions = ({ insurance }) => {
     const selectedInsurance = useSelector(selectCurrentBooking)?.insurance?._id;
-    console.log("insurance", insurance);
     const dispatch = useDispatch();
 
     const iconColor = useThemeColor({}, "icon");

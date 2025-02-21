@@ -13,7 +13,6 @@ import ThemedText from "@/components/ThemedText";
 const Index = () => {
     const backgroundColor = useThemeColor({}, "background");
     const onPressProfile = link => {
-        console.log("link", link);
         router.navigate(link);
     };
     return (

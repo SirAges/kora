@@ -123,7 +123,6 @@ const RenderItem = ({
     field: string;
     setShowModal: Dispatch<SetStateAction<boolean>>;
 }) => {
-    // console.log("item", item);
     const dispatch = useDispatch();
     const { slug, name, description, image } = item;
     const onPress = () => {

@@ -101,7 +101,7 @@ export function formatAmount(amount: number): string {
 
     return formatter.format(amount);
 }
-export const applyPromoCode = (price, slug) => {
+export const applyPromoCode = (price: number, slug: string):{price:number,discount:number} => {
     const promo = promoCodes.find(promo => promo.slug === slug);
 
     if (!promo) {
@@ -109,5 +109,6 @@ export const applyPromoCode = (price, slug) => {
     }
 
     const discount = (promo.percentage / 100) * price;
-    return price - discount; // Return the new discounted price
+    const newPrice=price - discount;
+    return {price:newPrice,discount:discount} // Return the new discounted price
 };

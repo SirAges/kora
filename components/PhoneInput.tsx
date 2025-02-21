@@ -39,7 +39,6 @@ const PhoneInput = forwardRef<PhoneInputProps>(
             setPhone(text);
             onChange(code + phone);
         };
-        console.log("code", code);
         return (
             <>
                 <View ref={ref} className="flex-1 flex-row items-center">

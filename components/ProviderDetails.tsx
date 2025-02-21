@@ -10,7 +10,6 @@ const ProviderDetails = ({ user_id, onPress }) => {
     const [provider, setProvider] = useState(null);
     const backgroundColor = useThemeColor({}, "background");
     const color = useThemeColor({}, "primary");
-    console.log("backgroundColor", backgroundColor);
     useEffect(() => {
         const found = users.find(user => user._id === user_id);
         setProvider(found);

@@ -21,7 +21,6 @@ export const authFields = [
         leftIcon: "key",
         rightIcon: function (params: any) {
             const { showPassword } = params;
-            console.log("params", showPassword);
             return showPassword ? "eye" : "eye-off";
         },
         Icon: Ionicons

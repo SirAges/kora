@@ -33,7 +33,6 @@ export default function FilePicker({
             copyToCacheDirectory: true,
             multiple
         });
-        console.log("result", assets);
         if (canceled) {
             console.log("canceled file picking");
             return;

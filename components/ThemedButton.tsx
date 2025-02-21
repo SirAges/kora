@@ -11,10 +11,12 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 
 export type ThemedButtonProps = TouchableOpacityProps &
     TextProps & {
-        children: React.ReactNode;
-        onPress: () => void;
+        children?: React.ReactNode;
+        onPress?: () => void;
         lightColor?: string;
         darkColor?: string;
+        title: string;
+        textStyle: any;
         leftIcon?: React.ReactNode;
         rightIcon?: React.ReactNode;
         type?: "default" | "filled" | "outline";

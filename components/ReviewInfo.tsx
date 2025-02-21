@@ -6,7 +6,6 @@ import ThemedText from "@/components/ThemedText";
 
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 const ReviewInfo = ({ rating, count }) => {
-    console.log(rating, count);
     const backgroundColor = useThemeColor({}, "background");
     const iconColor = useThemeColor({}, "icon");
     return (

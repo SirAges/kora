@@ -61,7 +61,6 @@ const RentACar = () => {
         self_driver
     } = useSelector(selectCurrentBooking);
     const booking = useSelector(selectCurrentBooking);
-    console.log("booking", JSON.stringify(booking, null, 2));
 
     useEffect(() => {
         return () => {};
@@ -214,7 +213,7 @@ const RentACar = () => {
                 </View>
                 <View
                     className="rounded-md border border-gray-200 px-2 py-2
-                my-2"
+                my-2 space-y-2"
                 >
                     <View className="flex-row items-center justify-between">
                         <ThemedText className="font-semibold">
@@ -226,7 +225,7 @@ const RentACar = () => {
                     </View>
                     <View className="flex-row items-center justify-between">
                         <ThemedText className="font-semibold capitalize">
-                            Insurance {insurance?.name}
+                            Insurance: {insurance?.name}
                         </ThemedText>
                         <ThemedText>
                             {formatAmount(
@@ -242,13 +241,19 @@ const RentACar = () => {
                     </View>
                     <View className="flex-row items-center justify-between">
                         <ThemedText className="font-semibold capitalize">
-                            Tax
+                            Discount
                         </ThemedText>
-                        <ThemedText>{formatAmount(tax)}</ThemedText>
+                        <ThemedText>-{formatAmount(applyPromoCode(car.price_per_day*parseInt(days),promo_code).discount)}</ThemedText>
+                    </View>
+                    <View className="flex-row items-center justify-between">
+                        <ThemedText className="font-semibold capitalize">
+                            Total
+                        </ThemedText>
+                        <ThemedText>{formatAmount(applyPromoCode((car.price_per_day+insurance?.price_per_day)*parseInt(days),promo_code).price)}</ThemedText>
                     </View>
                 </View>
             </ScrollView>
-            <ThemedButton title="Book car" />
+            <ThemedButton  title="Book car" onPress={undefined}  />
         </SafeAreaView>
     );
 };

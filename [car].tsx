@@ -17,7 +17,6 @@ import { Image } from "expo-image";
 import { useLocalSearchParams } from "expo-router";
 const Car = () => {
     const { car: carId } = useLocalSearchParams();
-    console.log("carId", carId);
     const [car, setCar] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
     const [imageIndex, setImageIndex] = useState(0);
