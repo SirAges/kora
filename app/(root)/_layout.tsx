@@ -3,6 +3,7 @@ import { usePathname, Redirect } from "expo-router";
 import { Tabs } from "expo-router";
 import { View } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import useAuth from "@/hooks/useAuth";
 
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -12,14 +13,16 @@ export default function Layout() {
     const primary = useThemeColor({}, "primary");
     const backgroundColor = useThemeColor({}, "background");
     const card = useThemeColor({}, "card");
-
+    const { isSignedIn, isOnboarded } = useAuth();
+    if (!isOnboarded && isSignedIn) return <Redirect href="(onboard)" />;
+    if (!isSignedIn) return <Redirect href="(auth)" />;
     return (
         <Tabs
-        detachInactiveScreens
+            detachInactiveScreens
             screenOptions={{
                 tabBarShowLabel: false,
                 tabBarStyle: {
-                  display: pathname.endsWith("/player") ? "none" : "flex",
+                    display: pathname.endsWith("/player") ? "none" : "flex",
                     borderTopRightRadius: 5,
                     borderTopLeftRadius: 5,
                     paddingTop: 10,

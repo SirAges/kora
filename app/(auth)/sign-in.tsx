@@ -9,40 +9,42 @@ import { Link } from "expo-router";
 import OAuths from "@/components/OAuths";
 import ThemedView from "@/components/ThemedView";
 import ThemedText from "@/components/ThemedText";
+import ScreenLoader from "@/components/ScreenLoader";
 import ThemedButton from "@/components/ThemedButton";
 import GoBack from "@/components/GoBack";
 import CustomFormField, { FormFieldType } from "@/components/CustomFormField";
+import { toastMessage } from "@/lib/utils";
 
 // Schema & Hooks
 import { authSchema, AuthSchemaType } from "@/lib/schema";
 import { useThemeColor } from "@/hooks/useThemeColor";
-
+import { useSigninMutation } from "@/redux/auth/authApiSlice";
 const SignIn: React.FC = () => {
     const [togglePassword, setTogglePassword] = useState(true);
+    const [signin, { isLoading }] = useSigninMutation();
     const { height } = Dimensions.get("window");
     const color = useThemeColor({}, "primary");
     const backgroundColor = useThemeColor({}, "background");
     const method = useForm<AuthSchemaType>({
         resolver: zodResolver(
-            authSchema.omit({ terms: true, confirm_password: true })
+            authSchema.pick({ email: true, password: true, otp: true })
         ),
         defaultValues: {
             email: "",
             password: ""
         }
     });
-    const {
-        control,
-        handleSubmit,
-        reset,
-        formState: { isLoading }
-    } = method;
-    const onSubmit = (data: AuthSchemaType) => {
-        Alert.alert("Form Submitted", JSON.stringify(data, null, 2));
-        // reset(); // Reset form after submission
+    const { control, handleSubmit, reset } = method;
+    const onSubmit = async (value: AuthSchemaType) => {
+        const { data, error } = await signin(value);
+        console.log("value", data);
+        if (error) {
+            toastMessage(error?.data?.message, "error");
+        }
+        // router.replace("")
     };
 
-    return (
+    return (<>
         <SafeAreaView style={{ backgroundColor }} className="h-full px-2 py-2">
             <GoBack />
             <ScrollView showsVerticalScrollIndicator={false}>
@@ -79,7 +81,6 @@ const SignIn: React.FC = () => {
                         name="password"
                         label="password"
                         placeholder="********"
-                      
                         leftIconName="key"
                         rightIconName={togglePassword ? "eye-off" : "eye"}
                         onPressRightIcon={() =>
@@ -133,7 +134,15 @@ const SignIn: React.FC = () => {
                 onPress={handleSubmit(onSubmit)}
                 // type="ghost"
             />
-        </SafeAreaView>
+             </SafeAreaView>
+            {isLoading && (
+                <ScreenLoader
+                    title="signing you in"
+                    messages="please
+            wait..."
+                />
+            )}
+       </>
     );
 };
 

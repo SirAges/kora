@@ -1,13 +1,12 @@
 import { apiSlice } from "@/app/api/apiSlice";
 
-import { signOut, setCredentials } from "./authSlice";
-import { setPersist } from "../setting/settingSlice";
+import { setCredentials } from "./authSlice";
 
 export const authApiSlice = apiSlice.injectEndpoints({
     endpoints: builder => ({
-        login: builder.mutation({
+        signin: builder.mutation({
             query: value => ({
-                url: "/dive/auth/login",
+                url: "/auth/sign-in",
                 method: "POST",
                 body: value
             }),
@@ -16,36 +15,36 @@ export const authApiSlice = apiSlice.injectEndpoints({
                     const { data } = await queryFulfilled;
 
                     if (data && data !== undefined) {
-                        dispatch(setCredentials(data.message));
+                        dispatch(setCredentials(data?.data));
                     }
                 } catch (err) {}
             }
         }),
-        register: builder.mutation({
+        signup: builder.mutation({
             query: value => ({
-                url: "/dive/auth/register",
+                url: "/auth/sign-up",
                 method: "POST",
                 body: value
             })
         }),
         resetPassword: builder.mutation({
             query: value => ({
-                url: "/dive/auth/resetpassword",
+                url: "/auth/reset-password",
                 method: "PATCH",
                 body: value
             })
         }),
-        verifyEmail: builder.mutation({
+        verify: builder.mutation({
             query: value => ({
-                url: "/dive/auth/verifyemail",
+                url: "/auth/verify",
                 method: "POST",
                 body: value
             })
         }),
 
-        logout: builder.mutation({
+        signout: builder.mutation({
             query: () => ({
-                url: "/dive/auth/logout",
+                url: "/auth/sign-out",
                 method: "POST"
             }),
             async onQueryStarted(arg, { dispatch, queryFulfilled }) {
@@ -61,10 +60,10 @@ export const authApiSlice = apiSlice.injectEndpoints({
         }),
         refresh: builder.mutation({
             query: () => ({
-                url: "/dive/auth/refresh",
+                url: "/auth/refresh",
                 method: "POST"
             }),
-            async onQueryStarted(arg,{ dispatch, queryFulfilled }) {
+            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
                 try {
                     const { data } = await queryFulfilled;
                     dispatch(setCredentials(data.message));
@@ -75,10 +74,10 @@ export const authApiSlice = apiSlice.injectEndpoints({
 });
 
 export const {
-    useLoginMutation,
-    useRegisterMutation,
-    useLogoutMutation,
+    useSigninMutation,
+    useSignupMutation,
+    useSignoutMutation,
     useRefreshMutation,
     useResetPasswordMutation,
-    useVerifyEmailMutation
+    useVerifyMutation
 } = authApiSlice;

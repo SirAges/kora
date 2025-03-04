@@ -79,15 +79,16 @@ const Index = () => {
                     continue with x
                 </ThemedButton>
 
-                <ThemedButton onPress={() => onPressButton("sign-up")}>
-                    Sign up
-                </ThemedButton>
                 <ThemedButton
+                    title="Sign up"
+                    onPress={() => onPressButton("sign-up")}
+                />
+
+                <ThemedButton
+                    title="Sign in"
                     onPress={() => onPressButton("sign-in")}
                     type="ghost"
-                >
-                    Sign in
-                </ThemedButton>
+                />
             </View>
             <View className="flex-row space-x-3">
                 <ThemedText type="subtitle">Privacy policy</ThemedText>

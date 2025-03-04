@@ -1,3 +1,4 @@
+import Toast from "react-native-toast-message";
 import {promoCodes}from "./data"
 export const calculateDateDifference = (start, end) => {
     if (!start || !end) return "";
@@ -110,4 +111,12 @@ export const applyPromoCode = (price, slug) => {
 
     const discount = (promo.percentage / 100) * price;
     return price - discount; // Return the new discounted price
+};
+export const toastMessage = (message: string, type?: string | undefined) => {
+    Toast.show({
+        text1: "Kora Alert",
+        text2: message,
+        type: "toast",
+        props: { name: type||"success" }
+    });
 };

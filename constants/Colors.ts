@@ -12,7 +12,7 @@ export const Colors = {
         default: "#1BA7FF",
         primary: "#1BA7FF",
         button: "#f1faff",
-        ghost: "#eaf5fc",
+        ghost: "#aedaf8",
         filled: "#1BA7FF",
         field: "#f8f8f8",
         background: "#ffffff",

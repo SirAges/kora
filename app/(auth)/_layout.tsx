@@ -1,6 +1,11 @@
-import { Slot, Stack } from "expo-router";
+import { Slot, Stack, Redirect } from "expo-router";
+import useAuth from "@/hooks/useAuth";
 
 export default function RootLayout() {
+    const { isSignedIn, isOnboarded } = useAuth();
+    if (!isOnboarded&&isSignedIn) return <Redirect href="(onboard)" />;
+    if (isSignedIn) return <Redirect href="(root)" />;
+
     return (
         <Stack
             screenOptions={{

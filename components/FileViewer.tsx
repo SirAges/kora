@@ -4,15 +4,20 @@ import {
     Text,
     TouchableOpacity,
     Modal,
-    Image,
     StyleSheet,
     ScrollView
 } from "react-native";
 import { Video } from "expo-av";
 import * as WebBrowser from "expo-web-browser";
+import { Image } from "expo-image";
 import { Buffer } from "buffer";
 import ThemedModal from "@/components/ThemedModal";
+import { useThemeColor } from "@/hooks/useThemeColor";
+
+import ThemedText from "@/components/ThemedText";
+import ThemedButton from "@/components/ThemedButton";
 import * as FileSystem from "expo-file-system";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import * as Sharing from "expo-sharing";
 
 interface FileViewerProps {
@@ -24,7 +29,7 @@ export default function FileViewer({ files }: FileViewerProps) {
     const isImage = (mimeType: string) => mimeType?.startsWith("image/");
     const isVideo = (mimeType: string) => mimeType?.startsWith("video/");
     const isPDF = (mimeType: string) => mimeType === "application/pdf";
-
+    const iconColor = useThemeColor({}, "icon");
     interface FileData {
         uri: string;
         name: string;
@@ -55,7 +60,6 @@ export default function FileViewer({ files }: FileViewerProps) {
     };
 
     const openFile = async (file: FileData): Promise<void> => {
-
         if (isSupportedFile(file.mimeType)) {
             const uti = getUTI(file.mimeType);
 
@@ -74,8 +78,8 @@ export default function FileViewer({ files }: FileViewerProps) {
     };
 
     return (
-        <View style={styles.container}>
-              <ScrollView horizontal>
+        <View className="py-2">
+            <ScrollView horizontal>
                 <View className="flex-row items-center space-x-2">
                     {files.map((file, index) => (
                         <TouchableOpacity
@@ -118,99 +122,46 @@ export default function FileViewer({ files }: FileViewerProps) {
                 visible={!!selectedFile}
                 onRequestClose={() => setSelectedFile(null)}
             >
-                <Text style={styles.modalTitle}>{selectedFile?.name}</Text>
-
-                {isImage(selectedFile?.mimeType) && (
-                    <Image
-                        className="flex-1 max-h-48"
-                        source={{ uri: selectedFile.uri }}
-                        resizeMode="contain"
-                    />
-                )}
-
-                {isVideo(selectedFile?.mimeType) && (
-                    <Video
-                        source={{ uri: selectedFile.uri }}
-                        className="flex-1 max-h-48"
-                        useNativeControls
-                        resizeMode="contain"
-                    />
-                )}
-
-                {!isImage(selectedFile?.mimeType) &&
-                    !isVideo(selectedFile?.mimeType) &&
-                    !isPDF(selectedFile?.mimeType) && (
-                        <Text>
-                            No preview available. Click the file name to open in
-                            browser.
+                <View className=" w-full h-full">
+                    <View className="flex-row items-center justify-between py-2">
+                        <Text className="font-semibold text-lg ">
+                            {selectedFile?.name}
                         </Text>
+                        <MaterialCommunityIcons
+                            onPress={() => setSelectedFile(null)}
+                            color={iconColor}
+                            name="close"
+                            size={24}
+                        />
+                    </View>
+
+                    {isImage(selectedFile?.mimeType) && (
+                        <Image
+                            className="w-full flex-1"
+                            source={{ uri: selectedFile.uri }}
+                            contentFit="contain"
+                        />
                     )}
 
-                <TouchableOpacity
-                    style={styles.closeButton}
-                    onPress={() => setSelectedFile(null)}
-                >
-                    <Text style={styles.closeButtonText}>Close</Text>
-                </TouchableOpacity>
+                    {isVideo(selectedFile?.mimeType) && (
+                        <Video
+                            source={{ uri: selectedFile.uri }}
+                            className="flex-1 h-48"
+                            useNativeControls
+                            resizeMode="contain"
+                        />
+                    )}
+
+                    {!isImage(selectedFile?.mimeType) &&
+                        !isVideo(selectedFile?.mimeType) &&
+                        !isPDF(selectedFile?.mimeType) && (
+                            <Text>
+                                No preview available. Click the file name to
+                                open in browser.
+                            </Text>
+                        )}
+                </View>
             </ThemedModal>
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        marginTop: 10
-    },
-    title: {
-        fontWeight: "bold",
-        marginBottom: 5
-    },
-    fileItem: {
-        backgroundColor: "#f0f0f0",
-        padding: 10,
-        borderRadius: 5,
-        marginBottom: 5
-    },
-    fileName: {
-        color: "#333"
-    },
-    modalContainer: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "rgba(0,0,0,0.8)"
-    },
-    modalContent: {
-        backgroundColor: "#fff",
-        padding: 20,
-        borderRadius: 10,
-        width: "90%",
-        maxHeight: "80%"
-    },
-    modalTitle: {
-        fontWeight: "bold",
-        fontSize: 16,
-        marginBottom: 10
-    },
-    previewImage: {
-        width: "100%",
-        height: 300,
-        marginBottom: 10
-    },
-    video: {
-        width: "100%",
-        height: 300,
-        marginBottom: 10
-    },
-    closeButton: {
-        marginTop: 15,
-        backgroundColor: "#ff4d4d",
-        padding: 10,
-        borderRadius: 5,
-        alignItems: "center"
-    },
-    closeButtonText: {
-        color: "#fff",
-        fontWeight: "bold"
-    }
-});

@@ -20,16 +20,29 @@ interface SelectProps {
 }
 
 const Select = forwardRef<View, SelectProps>(
-    ({ options, value, onChange, position }, ref) => {
+    ({ options, value, multiple, onChange, position }, ref) => {
         const [modalVisible, setModalVisible] = useState(false);
         const backgroundColor = useThemeColor({}, "card");
         const textColor = useThemeColor({}, "text");
         const borderColor = useThemeColor({}, "border");
         const placeholderColor = useThemeColor({}, "placeholder");
         const iconColor = useThemeColor({}, "icon");
+        let selects = [];
 
+        const onSelected = item => {
+            if (multiple) {
+                const exist = value?.find(f => f === item);
+                const filtered = value?.filter(f => f !== item) || [];
+                const newList = exist ? filtered : [...filtered, item];
+
+                onChange(newList);
+            } else {
+                onChange(item);
+            }
+            setModalVisible(false);
+        };
         return (
-            <View className="flex-1 py-2" >
+            <View className="flex-1 py-2">
                 <TouchableOpacity onPress={() => setModalVisible(true)}>
                     <View
                         className="flex-row  items-center
@@ -41,8 +54,11 @@ const Select = forwardRef<View, SelectProps>(
                                 color: value ? textColor : placeholderColor
                             }}
                         >
-                            {options.find(o => o.value === value)?.label ||
-                                "Select..."}
+                            {multiple
+                                ? (value && `${value.length} items selected`) ||
+                                  "Select Item"
+                                : options.find(o => o.value === value)?.label ||
+                                  "Select..."}
                         </Text>
                         <Iconicons
                             name="chevron-down"
@@ -62,17 +78,23 @@ const Select = forwardRef<View, SelectProps>(
                         keyExtractor={(item, index) => `${item.value}${index}`}
                         renderItem={({ item }) => (
                             <TouchableOpacity
-                                className="h-14 justify-center my-1 py-2 px-2
-                                bg-gray-200/70 
-                             rounded-lg"
-                                onPress={() => {
-                                    onChange(item.value);
-                                    setModalVisible(false);
+                                style={{
+                                    backgroundColor: value?.includes(
+                                        item?.value
+                                    )
+                                        ? iconColor
+                                        : backgroundColor
                                 }}
+                                className={`h-14 justify-center my-1 py-2 px-2 rounded-lg flex-row items-center`}
+                                onPress={() => onSelected(item.value)}
                             >
                                 <ThemedText
+                                    className="flex-1 capitalize font-semibold "
                                     style={{
-                                        color: textColor
+                                        color:value?.includes(item?.value)
+                                                ? "#ffffff"
+                                                : textColor
+                                          
                                     }}
                                 >
                                     {item.label}

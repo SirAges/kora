@@ -3,6 +3,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setupListeners } from "@reduxjs/toolkit/query";
 
 import globalReducer from "@/redux/globalSlice";
+import authReducer from "@/redux/auth/authSlice";
+import userReducer from "@/redux/user/userSlice";
 import { apiSlice } from "./apiSlice";
 import {
     persistStore,
@@ -25,7 +27,9 @@ const persistConfig = {
 // Root reducer combining all slices
 const rootReducer = combineReducers({
     [apiSlice.reducerPath]: apiSlice.reducer,
-    global: globalReducer
+    global: globalReducer,
+    auth: authReducer,
+    user: userReducer
 });
 
 // Wrapped reducer with reset functionality

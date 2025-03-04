@@ -1,4 +1,3 @@
-import ThemedText from "./ThemedText";
 import React from "react";
 import {
     Modal,
@@ -9,6 +8,7 @@ import {
     ScrollView
 } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import ThemedText from "./ThemedText";
 
 export type ThemedModalProps = {
     visible: boolean;
@@ -17,9 +17,10 @@ export type ThemedModalProps = {
     lightColor?: string;
     darkColor?: string;
     children: React.ReactNode;
+    title?: string;
 };
 
-export default ThemedModal = ({
+const ThemedModal: React.FC<ThemedModalProps> = ({
     visible,
     onRequestClose,
     position = "center",
@@ -27,51 +28,43 @@ export default ThemedModal = ({
     darkColor,
     children,
     title
-}: ThemedModalProps) => {
-    const backgroundColor = useThemeColor(
-        { light: lightColor, dark: darkColor },
-        "background"
-    );
+}) => {
+    const backgroundColor = useThemeColor({}, "background");
 
     const handleOutsidePress = (event: GestureResponderEvent) => {
         event.stopPropagation();
         onRequestClose();
     };
 
-    const positionStyle = {
-        top: {
-            justifyContent: "flex-start",
-            alignItems: "stretch"
-        },
+    const positionStyles = StyleSheet.create({
+        top: { justifyContent: "flex-start", alignItems: "stretch" },
         center: {
             justifyContent: "center",
             alignItems: "center"
         },
-        bottom: {
-            justifyContent: "flex-end",
-            alignItems: "stretch"
-        }
-    };
+        bottom: { justifyContent: "flex-end", alignItems: "stretch" }
+    });
 
-    const contentStyle = {
+    const contentStyles = StyleSheet.create({
         top: {
-            borderBottomLeftRadius: 10, // Rounded at bottom
+            borderBottomLeftRadius: 10,
             borderBottomRightRadius: 10,
             width: "100%",
-           // maxHeight: "70%"
-        },
-        center: {
-            borderRadius: 10, // Rounded on all sides
-            minWidth: "80%",
             maxHeight: "70%"
         },
+        center: {
+            borderRadius: 10,
+            width: "95%",
+            maxHeight: "80%",
+            alignSelf: "center"
+        },
         bottom: {
-            borderTopLeftRadius: 10, // Rounded at top
+            borderTopLeftRadius: 10,
             borderTopRightRadius: 10,
             width: "100%",
             maxHeight: "70%"
         }
-    };
+    });
 
     return (
         <Modal
@@ -81,13 +74,15 @@ export default ThemedModal = ({
             onRequestClose={onRequestClose}
         >
             <TouchableWithoutFeedback onPress={handleOutsidePress}>
-                <View style={[styles.modalOverlay, positionStyle[position]]}>
+                <View style={[styles.modalOverlay, positionStyles[position]]}>
                     <TouchableWithoutFeedback>
                         <View
                             style={[
                                 styles.modalContent,
-                                contentStyle[position],
-                                { backgroundColor }
+                                contentStyles[position],
+                                {
+                                    backgroundColor
+                                }
                             ]}
                         >
                             {title && (
@@ -98,8 +93,7 @@ export default ThemedModal = ({
                                     {title}
                                 </ThemedText>
                             )}
-
-                            <ScrollView>{children}</ScrollView>
+                            <View>{children}</View>
                         </View>
                     </TouchableWithoutFeedback>
                 </View>
@@ -117,8 +111,11 @@ const styles = StyleSheet.create({
         elevation: 5,
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
-        padding: 10,
+
         shadowOpacity: 0.3,
-        shadowRadius: 4
+        shadowRadius: 4,
+        padding: 10
     }
 });
+
+export default ThemedModal;

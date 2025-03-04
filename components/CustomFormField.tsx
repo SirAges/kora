@@ -110,7 +110,8 @@ const CustomFormField = ({
                                     maxHeight: 60 // Ensure field does not exceed max height
                                 }
                             ]}
-                            className="flex-row items-center py-2 px-2 rounded-md"
+                            className="flex-row items-center py-2 px-2
+                            rounded-md"
                         >
                             {LIcon && leftIconName && (
                                 <LIcon

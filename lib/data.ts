@@ -328,7 +328,7 @@ export const profiles = [
     {
         id: "1",
         title: "Renter",
-        link: "(root)",
+        link: "sign-up?user_type=user",
         image: "https://images.pexels.com/photos/11139416/pexels-photo-11139416.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
         description:
             "Looking to rent a car or hire a professional driver? Choose this option to find the perfect ride or driver for your needs."
@@ -336,7 +336,7 @@ export const profiles = [
     {
         id: "2",
         title: "Driver",
-        link: "onboard?role=driver",
+        link: "sign-up?user_type=driver",
         image: "https://images.pexels.com/photos/70912/pexels-photo-70912.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
         description:
             "Ready to offer your driving services? Join as a driver and connect with clients seeking reliable transportation."
@@ -344,7 +344,7 @@ export const profiles = [
     {
         id: "3",
         title: "Car Owner",
-        link: "onboard?role=car_owner",
+        link: "sign-up?user_type=car_owner",
         image: "https://images.pexels.com/photos/1213294/pexels-photo-1213294.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
         description:
             "Own a car you'd like to rent out? List your vehicle and start earning effortlessly."
@@ -352,7 +352,7 @@ export const profiles = [
     {
         id: "4",
         title: "Company",
-        link: "onboard?role=company",
+        link: "sign-up?user_type=company",
         image: "https://images.pexels.com/photos/11139416/pexels-photo-11139416.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
         description:
             "Manage a fleet of cars or drivers? Register your company to streamline rentals and driver management."
@@ -414,7 +414,7 @@ export const users = [
             push_notifications: true
         },
         device_tokens: ["user_device_token_1"],
-        user_type: "personal_renter"
+        user_type: "car_owner"
     },
 
     // User 2 (Personal Renter)
@@ -1011,29 +1011,7 @@ export const cars = [
                     "Approval is required from the rental company before the booking is confirmed."
             }
         ],
-        cancellation_policy: [
-            {
-                _id: "free_cancellation",
-                description: "Free cancellation up to 48 hours before pickup.",
-                refund_percentage: 100
-            },
-            {
-                _id: "partial_refund",
-                description: "Cancellation between 24-48 hours before pickup.",
-                refund_percentage: 50
-            },
-            {
-                _id: "last_minute_cancellation",
-                description: "Cancellation less than 24 hours before pickup.",
-                refund_percentage: 0
-            },
-            {
-                _id: "no_show",
-                description:
-                    "No refund if the vehicle is not picked up within 3 hours of the scheduled time.",
-                refund_percentage: 0
-            }
-        ],
+        cancellation_policy: [],
         pickup_options: [
             {
                 _id: "pickup_option1",
@@ -1789,7 +1767,6 @@ export const cars = [
         },
         extra_services: [
             {
-                _id: "extra3",
                 name: "Autopilot Access",
                 extra: 50,
                 description: "Full self-driving capabilities enabled."

@@ -8,13 +8,7 @@ interface OTPInputProps {
     onChange: () => void;
 }
 
-const OTPInput: React.FC<OTPInputProps> = ({
-    length = 6,
-    onChange,
-    value,
-    onRequestClose,
-    ...otherProps
-}) => {
+const OTPInput: React.FC<OTPInputProps> = ({ length = 6, onChange, value }) => {
     const [otp, setOtp] = useState(Array(length).fill(""));
     const inputs = useRef<(TextInput | null)[]>([]);
     const backgroundColor = useThemeColor({}, "card");
@@ -33,9 +27,6 @@ const OTPInput: React.FC<OTPInputProps> = ({
             if (text && index < length - 1) {
                 inputs.current[index + 1]?.focus();
             }
-            if (index === length - 1) {
-                onRequestClose();
-            }
         }
     };
 
@@ -50,21 +41,18 @@ const OTPInput: React.FC<OTPInputProps> = ({
     };
 
     return (
-        <View style={styles.container}>
+        <View className="flex-row items-center justify-between  w-full space-x-1">
             {otp.map((value, index) => (
                 <TextInput
+                    className="rounded-md h-12 flex-1 text-center border"
                     key={index}
                     ref={ref => (inputs.current[index] = ref)}
-                    style={[
-                        styles.input,
-                        { backgroundColor, color: textColor, borderColor }
-                    ]}
+                    style={[{ backgroundColor, color: textColor, borderColor }]}
                     keyboardType="number-pad"
                     maxLength={1}
                     value={value}
                     onChangeText={text => handleChange(text, index)}
                     onKeyPress={e => handleKeyPress(e, index)}
-                    {...otherProps}
                     placeholderTextColor={placeholderColor}
                 />
             ))}
@@ -73,12 +61,6 @@ const OTPInput: React.FC<OTPInputProps> = ({
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        gap: 10,
-    
-    },
     input: {
         flex: 1,
         width: 50,

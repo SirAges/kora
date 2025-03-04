@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import * as FilePickerExpo from "expo-document-picker";
 import { Controller } from "react-hook-form";
 import ThemedText from "@/components/ThemedText";
+import * as FileSystem from "expo-file-system";
 
 import { useThemeColor } from "@/hooks/useThemeColor";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -20,6 +21,7 @@ export default function FilePicker({
     name,
     instruction,
     onChange,
+    value,
     multiple,
     type
 }: FilePickerProps) {
@@ -33,14 +35,14 @@ export default function FilePicker({
             copyToCacheDirectory: true,
             multiple
         });
-        console.log("result", assets);
         if (canceled) {
             console.log("canceled file picking");
             return;
         }
         const newFiles = multiple ? [...pickedFiles, ...assets] : assets;
+
         setPickedFiles(newFiles);
-        onChange(newFiles);
+        onChange(multiple ? newFiles : newFiles[0]);
     };
 
     return (
@@ -58,7 +60,7 @@ export default function FilePicker({
                 <ThemedText>{instruction}</ThemedText>
             </TouchableOpacity>
 
-            <FileViewer files={pickedFiles} />
+            {value && <FileViewer files={multiple ? value : [value]} />}
         </View>
     );
 }

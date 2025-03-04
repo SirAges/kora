@@ -12,12 +12,12 @@ const Intro = () => {
     const [idx, setIdx] = useState<number>(0);
     const onPressContinue = () => {
         if (idx === intro.length - 1) {
-            router.replace("(auth)");
+            router.replace("(root)");
         }
         setIdx(prev => (prev < intro.length - 1 ? prev + 1 : prev));
     };
     const onPressSkip = () => {
-        router.replace("(onboard)");
+        router.replace("(root)");
     };
     return (
         <ThemedView lightColor="#1BA7FF" className="flex-1">

@@ -16,14 +16,13 @@ function isHydrateAction(action: Action): action is Action<typeof REHYDRATE> & {
 }
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL as string;
-const BASE_ONE_URL = process.env.EXPO_PUBLIC_API_ONE_BASE_URL as string;
 
 const baseQuery: BaseQueryFn = async (args, api, extraOptions) => {
     const state = api.getState() as RootState;
     const token = state.auth.token;
-    const isOneApi = args.url.startsWith("/subject");
+
     const baseQueryFunction = fetchBaseQuery({
-        baseUrl: isOneApi ? BASE_ONE_URL : BASE_URL,
+        baseUrl: BASE_URL,
         credentials: "include",
         prepareHeaders: headers => {
             if (token) headers.set("authorization", `Bearer ${token}`);
@@ -33,10 +32,11 @@ const baseQuery: BaseQueryFn = async (args, api, extraOptions) => {
     });
 
     // Add custom query params for child settings
-    const setting = state.setting;
+    const setting = state?.setting;
     const isChild = setting?.child;
     const queryParams = new URLSearchParams({ child: String(isChild) });
-    const urlWithParams = args.url.includes("?")
+    
+    const urlWithParams = (args?.url || args).includes("?")
         ? `${args.url}&${queryParams}`
         : `${args.url}?${queryParams}`;
     // Execute the query
@@ -45,13 +45,12 @@ const baseQuery: BaseQueryFn = async (args, api, extraOptions) => {
         api,
         extraOptions
     );
-
     // Handle token expiration
     if (result?.error?.status === 403) {
         console.log("Access token expired, attempting refresh");
 
         const refreshResult = await baseQueryFunction(
-            { url: "/api/auth/refresh", method: "POST" },
+            { url: "/auth/refresh", method: "POST" },
             api,
             extraOptions
         );
@@ -79,7 +78,7 @@ const baseQuery: BaseQueryFn = async (args, api, extraOptions) => {
 export const apiSlice = createApi({
     reducerPath: "api",
     baseQuery,
-    tagTypes: ["User", "Payment", "Movie", "Advert"],
+    tagTypes: ["USERS"],
     endpoints: builder => ({}),
     extractRehydrationInfo(action, { reducerPath }) {
         if (isHydrateAction(action)) {
@@ -87,9 +86,9 @@ export const apiSlice = createApi({
         }
         return null;
     },
-    //refetchOnReconnect: true,
+    refetchOnReconnect: true,
     //refetchOnFocus: true,
     refetchOnMountOrArgChange: true
 });
 
-export default apiSlice;
+//export default apiSlice;
