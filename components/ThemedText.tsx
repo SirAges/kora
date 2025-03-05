@@ -41,7 +41,8 @@ const styles = StyleSheet.create({
     },
     subtitle: {
         fontSize: 12,
-        fontWeight: 400
+        fontWeight: 400,
+        opacity: 0.6
     },
     link: {
         fontSize: 16,

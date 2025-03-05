@@ -65,7 +65,14 @@ const Index = () => {
     };
 
     const backgroundColor = useThemeColor({}, "background");
-    if (!data) return null;
+    if (!data)
+        return (
+            <ScreenLoader
+                title="Loading your profile"
+                message="please
+    wait..."
+            />
+        );
     const user = data?.data;
     return (
         <>
@@ -174,8 +181,12 @@ const Index = () => {
                     </ThemedView>
                 </ScrollView>
             </SafeAreaView>
-            <ProfileModal showModal={showModal} setShowModal={setShowModal}
-            option={option} user={user}/>
+            <ProfileModal
+                showModal={showModal}
+                setShowModal={setShowModal}
+                option={option}
+                user={user}
+            />
         </>
     );
 };

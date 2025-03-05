@@ -4,18 +4,43 @@ import { Tabs } from "expo-router";
 import { View } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import useAuth from "@/hooks/useAuth";
+import { useEffect, useState } from "react";
+import * as Device from "expo-device";
 
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-
+import { useUpdateUserMutation } from "@/redux/user/userApiSlice";
 export default function Layout() {
+    const [updateUser, { data, isLoading }] = useUpdateUserMutation();
     const pathname = usePathname();
     const primary = useThemeColor({}, "primary");
     const backgroundColor = useThemeColor({}, "background");
     const card = useThemeColor({}, "card");
-    const { isSignedIn, isOnboarded } = useAuth();
+    const [deviceInfo, setDeviceInfo] = useState(null);
+    const { isSignedIn, userId, isOnboarded } = useAuth();
     if (!isOnboarded && isSignedIn) return <Redirect href="(onboard)" />;
     if (!isSignedIn) return <Redirect href="(auth)" />;
+    useEffect(() => {
+        const getDeviceDetails = async () => {
+            await updateUser({
+                user_id: userId,
+                value: {
+                    connected_devices: [
+                        {
+                            device_id: Device.osName,
+                            brand: Device.brand,
+                            device_name: Device.deviceName,
+                            model_name: Device.modelName,
+                            os_version: Device.osVersion,
+                            device_type: Device.DeviceType[Device.deviceType]
+                        }
+                    ]
+                }
+            });
+        };
+
+        getDeviceDetails();
+    }, []);
     return (
         <Tabs
             detachInactiveScreens

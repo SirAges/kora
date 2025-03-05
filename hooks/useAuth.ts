@@ -8,8 +8,15 @@ const useAuth = () => {
     try {
         if (!token) return initialState;
         const decoded = jwtDecode(token);
-        //console.log("decoded", decoded);
-        if (!decoded) return initialState;
+        if (!decoded) {
+            return initialState;
+        }
+
+        const currentTimestamp = Math.floor(Date.now() / 1000);
+        const isTokenExpired = currentTimestamp > decoded.exp;
+        if (isTokenExpired) {
+            return initialState;
+        }
         return { isSignedIn: true, isOnboarded: decoded.onboarded, ...decoded };
     } catch (error) {
         console.log("error", error);

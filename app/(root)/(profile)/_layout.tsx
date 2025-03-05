@@ -1,6 +1,9 @@
 import { Slot, Stack } from "expo-router";
 
+
 export default function RootLayout() {
+    
+
     return (
         <Stack
             screenOptions={{
@@ -8,7 +11,6 @@ export default function RootLayout() {
             }}
         >
             <Stack.Screen name="index" />
-      
         </Stack>
     );
 }

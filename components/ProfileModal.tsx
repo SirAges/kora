@@ -13,6 +13,7 @@ import {
     Button,
     TextInput
 } from "react-native";
+import * as LocalAuthentication from "expo-local-authentication";
 import { useSelector, useDispatch } from "react-redux";
 import * as FilePickerExpo from "expo-document-picker";
 import FileViewer from "./FileViewer";
@@ -20,6 +21,7 @@ import FileViewer from "./FileViewer";
 import { selectCurrentBooking, addToBooking } from "@/redux/globalSlice";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import ProviderDetails from "@/components/ProviderDetails";
+import GAuthModal from "@/components/GAuthModal";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ThemedText from "@/components/ThemedText";
@@ -29,8 +31,12 @@ import ThemedModal from "@/components/ThemedModal";
 import Alert from "@/components/Alert";
 import ScreenLoader from "@/components/ScreenLoader";
 import { Image } from "expo-image";
+import { router } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useUpdateUserMutation } from "@/redux/user/userApiSlice";
+import {
+    useUpdateUserMutation,
+    useGenerate2FaMutation
+} from "@/redux/user/userApiSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as FileSystem from "expo-file-system";
 import { persistor } from "@/app/api/store"; // Adjust if necessary
@@ -221,7 +227,6 @@ const RenderProfile = ({ user, onUpdate }) => {
             return;
         }
         const { uri, mimeType, size } = assets[0];
-        console.log("size", size);
         if (size / 1000000 > 1) {
             toastMessage("file too large", "info");
             return;
@@ -249,7 +254,6 @@ const RenderProfile = ({ user, onUpdate }) => {
                 user_id: user._id,
                 value: { [key]: editValue }
             });
-            console.log("data", data, error);
         }
         setEditing(null);
     };
@@ -395,7 +399,6 @@ const RenderProfile = ({ user, onUpdate }) => {
 };
 const RenderPreference = ({ user }) => {
     const [updateUser, { data, isLoading }] = useUpdateUserMutation();
-    console.log("user", user);
     const [cache, setCache] = useState("0.00");
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
@@ -442,10 +445,11 @@ const RenderPreference = ({ user }) => {
     };
 
     const handleOptionSelect = async item => {
-        const value = selectedItem?.field
-            ? { [selectedItem?.field]: item.value }
-            : { setting: { [selectedItem?.field]: item.value } };
-        await updateUser({
+        const value =
+            selectedItem?.field === "country"
+                ? { [selectedItem?.field]: item.value }
+                : { setting: { [selectedItem?.field]: item.value } };
+        const { data, error } = await updateUser({
             user_id: user._id,
             value
         });
@@ -513,7 +517,7 @@ const RenderPreference = ({ user }) => {
                 <ThemedText className="font-semibold text-lg capitalize">
                     {title}
                 </ThemedText>
-                <ThemedText className="text-right flex-1 text-md px-2">
+                <ThemedText className="text-[8px] font-semibold text-right flex-1 uppercase">
                     {field}
                 </ThemedText>
                 <MaterialCommunityIcons name="chevron-right" size={20} />
@@ -667,7 +671,6 @@ const RenderNotification = ({ user }) => {
     ];
 
     const onSwitchChange = async (value, key) => {
-        console.log("value", value);
         await updateUser({
             user_id: user._id,
             value: { notification_preferences: { [key]: value } }
@@ -721,19 +724,30 @@ const RenderNotification = ({ user }) => {
 };
 const RenderSecurity = ({ user }) => {
     const [updateUser, { data, isLoading }] = useUpdateUserMutation();
+    const [generate2Fa, { data: gData, isLoading: gIsLoading }] =
+        useGenerate2FaMutation();
+    const [gAuth, setGAuth] = useState(null);
     const iconColor = useThemeColor({}, "icon");
     const color = useThemeColor({}, "text");
     const card = useThemeColor({}, "card");
     const backgroundColor = useThemeColor({}, "background");
     const securitySettings = [
-        { label: "Biometric ID", value: "biometric_id" },
-        { label: "Face ID", value: "face_id" },
-        { label: "SMS Authenticator", value: "sms_authenticator" },
-        { label: "Google Authenticator", value: "google_authenticator" },
-        { label: "Change Password", value: "change_password" }
+        {
+            label: "Fingerprint",
+            value: "fingerprint",
+            description:
+                "Use biometric authentication to quickly and securely access your account with a registered fingerprint. This method ensures that only authorized users can log in without needing a password."
+        },
+        {
+            label: "Google Authenticator",
+            value: "google_authenticator",
+            description:
+                "Enhance account security with Google Authenticator, which generates time-sensitive, one-time passcodes. This method requires linking your account to the Google Authenticator app for added protection against unauthorized access."
+        }
     ];
 
     const accountActions = [
+        { label: "Change Password", value: "change_password" },
         {
             label: "Device Management",
             value: "device_management",
@@ -755,57 +769,185 @@ const RenderSecurity = ({ user }) => {
     ];
 
     const onSwitchChange = async (value, key) => {
-        console.log("value", value);
+        if (key === "google_authenticator") {
+            if (!user.security_preferences[key]) {
+                const { data, error } = await generate2Fa(user._id);
+                if (data?.success) {
+                    setGAuth(data?.data);
+                }
+            } else {
+                await updateUser({
+                    user_id: user._id,
+                    value: { security_preferences: { [key]: null } }
+                });
+            }
+            return;
+        }
+
+        if (key === "fingerprint" && !user.security_preferences[key]) {
+            const result = await LocalAuthentication.authenticateAsync({
+                promptMessage: "Enable fingerprint Authentication"
+            });
+            if (result.success) {
+                await updateUser({
+                    user_id: user._id,
+                    value: { security_preferences: { [key]: value } }
+                });
+            }
+            return;
+        }
+
         await updateUser({
             user_id: user._id,
-            value: { notification_preferences: { [key]: value } }
+            value: { security_preferences: { [key]: value } }
+        });
+    };
+
+    const onActionsPress = async (key, value) => {
+        await updateUser({
+            user_id: user._id,
+            value: { [key]: value }
         });
     };
     return (
         <View className="rounded-md border border-gray-200 px-2 py-2 my-3">
+            <ThemedText type="title" className="font-semibold capitalize">
+                Enable extra security features
+            </ThemedText>
+
             <FlatList
                 data={securitySettings}
                 keyExtractor={(item, index) => item + index}
                 renderItem={({ item }) => (
-                    <View className="flex-row items-center justify-between">
-                        <ThemedText
-                            onPress={() => onSwitchChange(true, item?.value)}
-                            className="capitalize font-semibold"
+                    <View className=" my-2">
+                        <View
+                            className="flex-1 flex-row items-center
+                        justify-between"
                         >
-                            {item.label}
+                            <ThemedText
+                                onPress={() =>
+                                    onSwitchChange(true, item?.value)
+                                }
+                                className="capitalize font-semibold"
+                            >
+                                {item.label}
+                            </ThemedText>
+                            <Switch
+                                trackColor={{
+                                    false: color + 70,
+                                    true: iconColor + 70
+                                }}
+                                thumbColor={
+                                    user?.security_preferences[item?.value]
+                                        ? iconColor
+                                        : color
+                                }
+                                ios_backgroundColor={card}
+                                onValueChange={value =>
+                                    onSwitchChange(value, item?.value)
+                                }
+                                value={user?.security_preferences[item?.value]}
+                            />
+                        </View>
+                        <ThemedText type="subtitle" className=" text-sm">
+                            {item.description ||
+                                "Enhance your account security by enabling this option."}
                         </ThemedText>
-                      <Switch
-                            trackColor={{
-                                false: color + 70,
-                                true: iconColor + 70
-                            }}
-                            thumbColor={
-                                user?.security_preferences[item?.value]
-                                    ? iconColor
-                                    : color
-                            }
-                            ios_backgroundColor={card}
-                            onValueChange={value =>
-                                onSwitchChange(value, item?.value)
-                            }
-                            value={user?.security_preferences[item?.value]}
-                        />
                     </View>
                 )}
             />
-            {(data?.success || data?.error) && (
+            <View className="space-y-2">
+                <ThemedText className="font-semibold">
+                    Manage connected Devices
+                </ThemedText>
+                <ThemedText type="subtitle" className="text-sm">
+                    View and manage all devices currently logged into your
+                    account.
+                </ThemedText>
+                <View>
+                    {user?.connected_devices.map(
+                        ({ brand, model_name, device_type, device_name }) => (
+                            <View
+                                className="rounded-md border-gray-200 border px-2
+                        py-2 my-1"
+                            >
+                                <ThemedText className="text-sm font-semibold">
+                                    {device_name}
+                                </ThemedText>
+                                <View
+                                    className="flex-row items-center
+                                justify-between py-1"
+                                >
+                                    <ThemedText className="text-xs">
+                                        {brand}
+                                    </ThemedText>
+                                    <ThemedText className="text-xs">
+                                        {model_name}
+                                    </ThemedText>
+                                </View>
+                            </View>
+                        )
+                    )}
+                </View>
+            </View>
+
+            <TouchableOpacity
+                onPress={() =>
+                    onActionsPress(
+                        "deactivate_account",
+                        !user?.deactivate_account
+                    )
+                }
+                style={{
+                    backgroundColor: user?.deactivate_account
+                        ? "#cd0000" + 30
+                        : iconColor + 30
+                }}
+                className="rounded-md px-2 py-4 my-2"
+            >
+                <ThemedText className="font-semibold">
+                    {user?.deactivate_account
+                        ? "Reactivate Account"
+                        : "Deactivate Account"}
+                </ThemedText>
+                <ThemedText type="subtitle" className=" text-sm">
+                    Temporarily disable your account. You can reactivate it
+                    later.
+                </ThemedText>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+                onPress={() =>
+                    onActionsPress("delete_account", !user?.delete_account)
+                }
+                style={{
+                    backgroundColor: user?.delete_account
+                        ? "#cd0000" + 30
+                        : iconColor + 30
+                }}
+                className="rounded-md px-2 py-4"
+            >
+                <ThemedText className="font-semibold">
+                    {user?.delete_account
+                        ? "Delete Account"
+                        : "Cancel Account Deletion"}
+                </ThemedText>
+                <ThemedText type="subtitle" className="text-sm">
+                    {user?.delete_account
+                        ? "your account will be permanently deleted after 14 days.This action cannot be undone."
+                        : "Permanently delete your account and all associated data."}
+                </ThemedText>
+            </TouchableOpacity>
+
+            {(data?.success || data?.error || gData?.success, gData?.error) && (
                 <Alert
-                    title={data?.success ? "Successfull" : "An error occured"}
+                    title={data?.success ? "Successful" : "An error occurred"}
                     message={data?.message}
                 />
             )}
-
-            {isLoading && (
-                <ScreenLoader
-                    title="making update"
-                    messages="please
-            wait..."
-                />
+            {gAuth && <GAuthModal data={gAuth} setGAuth={setGAuth} />}
+            {(isLoading || gIsLoading) && (
+                <ScreenLoader title="Making update" messages="Please wait..." />
             )}
         </View>
     );

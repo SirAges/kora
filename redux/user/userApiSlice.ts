@@ -16,6 +16,26 @@ export const userApiSlice = apiSlice.injectEndpoints({
                 { type: "USERS", id: user_id }
             ]
         }),
+        verify2Fa: builder.mutation({
+            query: ({ user_id, value }) => ({
+                url: `/users/${user_id}/verify2fa`,
+                method: "PUT",
+                body: value
+            }), invalidatesTags: (result, error, { user_id }) => [
+                { type: "USERS", id: user_id }
+            ]
+           
+        }),
+        generate2Fa: builder.mutation({
+            query: user_id => ({
+                url: `/users/${user_id}/generate2fa`,
+                method: "PUT"
+            }),
+            invalidatesTags: (result, error, { user_id }) => [
+                { type: "USERS", id: user_id }
+            ]
+        }),
+
         updateUser: builder.mutation({
             query: ({ user_id, value }) => ({
                 url: `/users/${user_id}`,
@@ -94,5 +114,7 @@ export const {
     useRemoveDeviceTokenMutation,
     useApplyDriverMutation,
     useAcceptDriverMutation,
-    useDeleteFileMutation
+    useDeleteFileMutation,
+    useGenerate2FaMutation,
+    useVerify2FaMutation
 } = userApiSlice;
