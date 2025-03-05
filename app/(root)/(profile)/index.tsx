@@ -51,7 +51,7 @@ export enum ModalOptions {
 const Index = () => {
     const { userId } = useAuth();
     const { data, error } = useGetUserQuery(userId);
-
+console.log('data', data,error)
     const color = useThemeColor({}, "text");
     const iconColor = useThemeColor({}, "icon");
     const primary = useThemeColor({}, "primary");

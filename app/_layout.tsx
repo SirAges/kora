@@ -1,90 +1,106 @@
 import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
+    DarkTheme,
+    DefaultTheme,
+    ThemeProvider
 } from "@react-navigation/native";
 import Toast, { ToastConfigParams } from "react-native-toast-message";
 import { useFonts } from "expo-font";
 import { Slot } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import "react-native-reanimated";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { store, persistor } from "./api/store";
-import { useColorScheme, View, Text } from "react-native";
+import { View, Text, useColorScheme } from "react-native";
+import ThemedText from "@/components/ThemedText";
+import ThemedView from "@/components/ThemedView";
+import { useThemeColor } from "@/hooks/useThemeColor";
+
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 export const toastConfig = {
-  toast: ({ text1, props, text2 }: ToastConfigParams<any>) => (
-    <View className="w-full px-2 py-2 flex-1 bg-red-800">
-      <View
-        className="bg-white shadow-md min-h-[70px] shadow-black rounded-md
-                 flex-row items-center"
-      >
-        <View
-          style={{
-            backgroundColor:
-              props?.name === "success"
-                ? "#22bb33"
-                : props?.name === "warn"
-                ? "#f0ad4e"
-                : props?.name === "error"
-                ? "#bb2124"
-                : props?.name === "info"
-                ? "#5bc0de"
-                : "#aaaaaa",
-          }}
-          className="h-full w-2 rounded-l-md"
-        />
-        <View className="flex-1 px-2 py-2 h-full">
-          <Text className="font-semibold text-xs opacity-80">{text1}</Text>
-          <Text className="opacity-70">{text2}</Text>
+    toast: ({ text1, props, text2 }: ToastConfigParams<any>) => (
+        <View className="items-center justify-center w-full px-2 h-screen">
+            <View
+                className="w-full min-h-[200px] items-center justify-center
+            rounded-lg relative bg-white shadow-md shadow-black space-y-4"
+            >
+                <View
+                    style={{ backgroundColor: "#eaeaea" }}
+                    className="absolute top-4
+                right-4 z-50 py-2 px-2 rounded-full"
+                >
+                    <MaterialCommunityIcons
+                        onPress={() => Toast.hide()}
+                        name="close"
+                        size={24}
+                        color={"#00a8e1"}
+                    />
+                </View>
+                <View>
+                    <MaterialCommunityIcons
+                        name="bell-alert-outline"
+                        size={60}
+                        color={"#1BA7FF"}
+                    />
+                </View>
+                <View className=" items-center space-y-4">
+                    {text1 && (
+                        <ThemedText
+                            className="font-semibold text-xl capitalize
+                            text-center
+                        w-full"
+                        >
+                            {text1}
+                        </ThemedText>
+                    )}
+                    {text2 && (
+                        <ThemedText className="text-center">{text2}</ThemedText>
+                    )}
+                </View>
+            </View>
         </View>
-      </View>
-    </View>
-  ),
+    )
 };
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
-  });
+    const colorScheme = useColorScheme();
+    const [loaded] = useFonts({
+        SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf")
+    });
 
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
+    useEffect(() => {
+        if (loaded) {
+            SplashScreen.hideAsync();
+        }
+    }, [loaded]);
+
+    if (!loaded) {
+        return null;
     }
-  }, [loaded]);
 
-  if (!loaded) {
-    return null;
-  }
-
-  return (
-    <Provider store={store}>
-      <PersistGate
-        loading={null}
-        persistor={persistor}
-      >
-        <ThemeProvider
-          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-        >
-          <GestureHandlerRootView>
-            <View className="z-50 absolute top-0 bottom-0 right-0 left-0 w-full">
-              <Toast
-                config={toastConfig}
-                position="top"
-                topOffset={40}
-              />
-            </View>
-            <Slot />
-            <StatusBar style="auto" />
-          </GestureHandlerRootView>
-        </ThemeProvider>
-      </PersistGate>
-    </Provider>
-  );
+    return (
+        <Provider store={store}>
+            <PersistGate loading={null} persistor={persistor}>
+                <ThemeProvider
+                    value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+                >
+                    <GestureHandlerRootView>
+                        <View className="z-50 absolute  w-full">
+                            <Toast
+                                config={toastConfig}
+                                position="top"
+                                topOffset={40}
+                            />
+                        </View>
+                        <Slot />
+                        <StatusBar style="auto" />
+                    </GestureHandlerRootView>
+                </ThemeProvider>
+            </PersistGate>
+        </Provider>
+    );
 }
