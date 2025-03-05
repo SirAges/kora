@@ -82,6 +82,20 @@ export const userApiSlice = apiSlice.injectEndpoints({
                 body
             })
         }),
+        addConnectedDevice: builder.mutation({
+            query: ({ user_id, value }) => ({
+                url: `/users/${user_id}/add-device`,
+                method: "PUT",
+                body:value
+            })
+        }),
+        removeConnectedDevice: builder.mutation({
+            query: ({ user_id, device_id }) => ({
+                url: `/users/${user_id}/remove-device/${device_id}`,
+                method: "PUT",
+                
+            })
+        }),
         applyDriver: builder.mutation({
             query: ({ user_id, driver_id }) => ({
                 url: `/users/${user_id}/apply-driver/${driver_id}`,
@@ -112,6 +126,8 @@ export const {
     useSubscribeMutation,
     useAddDeviceTokenMutation,
     useRemoveDeviceTokenMutation,
+    useAddConnectedDeviceMutation,
+    useRemoveConnectedDeviceMutation,
     useApplyDriverMutation,
     useAcceptDriverMutation,
     useDeleteFileMutation,
