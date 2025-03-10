@@ -12,55 +12,55 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import FileViewer from "./FileViewer";
 
 interface FilePickerProps {
-    control: any;
-    name: string;
-    instruction: string;
+  control: any;
+  name: string;
+  instruction: string;
 }
 
 export default function FilePicker({
-    control,
-    name,
-    instruction,
-    onChange,
-    value,
-    multiple,
-    type
+  control,
+  name,
+  instruction,
+  onChange,
+  value,
+  multiple,
+  type,
 }: FilePickerProps) {
-    const [pickedFiles, setPickedFiles] = useState<any[]>([]);
-    const backgroundColor = useThemeColor({}, "card");
-    const color = useThemeColor({}, "text");
-    const iconColor = useThemeColor({}, "icon");
-    const pickDocument = async (onChange: (file: any) => void) => {
-        const { assets, canceled } = await FilePickerExpo.getDocumentAsync({
-            type: "*/*",
-            copyToCacheDirectory: true,
-            multiple
-        });
-        if (canceled) {
-            console.log("canceled file picking");
-            return;
-        }
-        const newFiles = multiple ? [...pickedFiles, ...assets] : assets;
+  const [pickedFiles, setPickedFiles] = useState<any[]>([]);
+  const backgroundColor = useThemeColor({}, "card");
+  const color = useThemeColor({}, "text");
+  const iconColor = useThemeColor({}, "icon");
+  const pickDocument = async (onChange: (file: any) => void) => {
+    const { assets, canceled } = await FilePickerExpo.getDocumentAsync({
+      type: "*/*",
+      copyToCacheDirectory: true,
+      multiple,
+    });
+    if (canceled) {
+      console.log("canceled file picking");
+      return;
+    }
+    const newFiles = multiple ? [...pickedFiles, ...assets] : assets;
 
-        setPickedFiles(newFiles);
-        onChange(multiple ? newFiles : newFiles[0]);
-    };
+    setPickedFiles(newFiles);
+    onChange(multiple ? newFiles : newFiles[0]);
+  };
 
-    return (
-        <View className="flex-1">
-            <TouchableOpacity
-                className="items-center justify-center border-b border-gray-200 h-24"
-                onPress={() => pickDocument(onChange)}
-            >
-                <Ionicons
-                    name="cloud-upload-outline"
-                    color={iconColor}
-                    size={32}
-                />
-                <ThemedText>{instruction}</ThemedText>
-            </TouchableOpacity>
+  return (
+    <View className="flex-1 h-24 py-2">
+      <TouchableOpacity
+        className="items-center justify-center flex-1"
+        onPress={() => pickDocument(onChange)}
+      >
+        <Ionicons
+          name="cloud-upload-outline"
+          color={iconColor}
+          size={32}
+        />
+      </TouchableOpacity>
+      <ThemedText className="text-center">{instruction}</ThemedText>
 
-            {value && <FileViewer files={multiple ? value : [value]} />}
-        </View>
-    );
+      {value && <FileViewer files={multiple ? value : [value]} />}
+    </View>
+  );
 }
