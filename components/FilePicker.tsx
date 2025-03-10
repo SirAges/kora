@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import * as FilePickerExpo from "expo-document-picker";
 import { Controller } from "react-hook-form";
 import ThemedText from "@/components/ThemedText";
+import CustomFormField from "@/components/CustomFormField";
 import * as FileSystem from "expo-file-system";
 
 import { useThemeColor } from "@/hooks/useThemeColor";
@@ -48,8 +49,7 @@ export default function FilePicker({
     return (
         <View className="flex-1">
             <TouchableOpacity
-                className="items-center justify-center flex-1 h-24 rounded-md"
-                style={[{ backgroundColor }]}
+                className="items-center justify-center border-b border-gray-200 h-24"
                 onPress={() => pickDocument(onChange)}
             >
                 <Ionicons

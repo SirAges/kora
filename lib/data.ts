@@ -1,3 +1,197 @@
+export const reportIssues = [
+    {
+        id: 1,
+        category: "Accidents & Breakdowns",
+        description: "Report a vehicle breakdown or accident.",
+        steps: [
+            "Contact emergency support via the in-app button.",
+            "Call the vehicle owner or rental company.",
+            "Provide details (location, issue, any damage)."
+        ],
+        emergency_contacts: [
+            { name: "Roadside Assistance", phone: "+1234567890" },
+            { name: "Insurance Provider", phone: "+0987654321" }
+        ],
+        resolution_process: [
+            "Support will assess the situation.",
+            "Assistance will be provided based on the severity."
+        ],
+        showForm: true
+    },
+    {
+        id: 2,
+        category: "Lost Items",
+        description: "Report a lost item after a trip.",
+        steps: [
+            "Select 'Report Lost Item'.",
+            "Enter booking details (date, time, vehicle/driver info).",
+            "Describe the lost item."
+        ],
+        resolution_process: [
+            "If found, support will contact the user.",
+            "Pickup or delivery options will be provided."
+        ],
+      
+        showForm: true
+    },
+    {
+        id: 3,
+        category: "Payment Issues",
+        description: "Report failed transactions or refund requests.",
+        issues: [
+            {
+                type: "Failed Transaction",
+                resolution_process: [
+                    "Provide proof of payment.",
+                    "Check wallet balance (if applicable)."
+                ]
+            },
+            {
+                type: "Refund Request",
+                resolution_process: [
+                    "Check cancellation refund eligibility.",
+                    "Processing time for refunds."
+                ]
+            }
+        ],
+        resolution_process: [
+            "Support will verify the transaction details.",
+            "Refunds, if applicable, will be processed within the stated period."
+        ],
+      
+        showForm: true
+    },
+    {
+        id: 4,
+        category: "Driver/Customer Complaints",
+        description: "Report issues related to drivers or customers.",
+        complaint_type: [
+            "Rude behavior",
+            "Reckless driving",
+            "Harassment",
+            "Unprofessional behavior"
+        ],
+        resolution_process: [
+            "Investigation by the support team.",
+            "Possible action against the driver/customer."
+        ],
+      
+        showForm: true
+    },
+    {
+        id: 5,
+        category: "App & Booking Issues",
+        description: "Report technical issues or booking problems.",
+        issues: [
+            {
+                type: "App Errors & Crashes",
+                steps: [
+                    "Upload screenshots.",
+                    "Provide details (device type, OS version)."
+                ]
+            },
+            {
+                type: "Booking Issues",
+                steps: [
+                    "Report double bookings, incorrect charges, or trip cancellations."
+                ]
+            }
+        ],
+        resolution_process: [
+            "Technical team will review the issue.",
+            "Fixes or clarifications will be provided."
+        ],
+
+        showForm: true
+    }
+];
+export const faqs = [
+    {
+        id: 1,
+        question: "How do I contact customer support?",
+        answer: "You can reach customer support through live chat, email, or phone from the 'Help & Support' section."
+    },
+    {
+        id: 2,
+        question: "What payment methods are accepted?",
+        answer: "We accept credit/debit cards, mobile wallets, and bank transfers."
+    },
+    {
+        id: 3,
+        question: "How do I book a car?",
+        answer: "To book a car, select your preferred vehicle, choose the rental period, and complete the payment process."
+    },
+    {
+        id: 4,
+        question: "Can I cancel my booking?",
+        answer: "Yes, you can cancel your booking from the 'My Bookings' section. Cancellation fees may apply based on the timing."
+    },
+    {
+        id: 5,
+        question: "What happens if the car breaks down?",
+        answer: "Contact support immediately through the app. We will assist with a replacement or necessary repairs."
+    },
+    {
+        id: 6,
+        question: "How do I register as a driver?",
+        answer: "To register as a driver, go to the 'Driver Signup' section, fill in your details, upload required documents, and wait for approval."
+    },
+    {
+        id: 7,
+        question: "What documents do I need to register as a driver?",
+        answer: "You need a valid driver's license, a national ID, proof of residence, and a recent passport photo."
+    },
+    {
+        id: 8,
+        question: "How do I receive payments as a driver?",
+        answer: "Drivers receive payments directly into their registered bank accounts or mobile wallets on a weekly basis."
+    },
+    {
+        id: 9,
+        question: "How do I list my car for rental?",
+        answer: "Go to 'List Your Car', provide the car details, upload photos, set the rental price, and submit for approval."
+    },
+    {
+        id: 10,
+        question: "What are the requirements for listing a car?",
+        answer: "Your car must be in good condition, have valid insurance, and pass a safety inspection."
+    },
+    {
+        id: 11,
+        question: "How do I receive rental payments?",
+        answer: "Payments for rentals will be transferred to your registered bank account after each successful booking."
+    },
+    {
+        id: 12,
+        question: "How can my company partner with the platform?",
+        answer: "You can apply as a company through the 'Company Signup' section and submit the necessary business documents."
+    },
+    {
+        id: 13,
+        question: "Can my company list multiple vehicles?",
+        answer: "Yes, companies can list multiple vehicles under one account and manage bookings efficiently."
+    },
+    {
+        id: 14,
+        question: "How does revenue sharing work for companies?",
+        answer: "Revenue is split based on rental agreements, and payments are settled weekly or monthly."
+    },
+    {
+        id: 15,
+        question: "How does the wallet system work?",
+        answer: "Renters and car owners have a wallet in the app to track their earnings from completed bookings."
+    },
+    {
+        id: 16,
+        question: "How often are earnings paid out?",
+        answer: "Earnings are paid out weekly or monthly, based on your selected payout preference."
+    },
+    {
+        id: 17,
+        question: "Where can I see my earnings?",
+        answer: "You can view your earnings in the 'Wallet' section of the app, showing completed transactions and upcoming payouts."
+    }
+];
 export const promoCodes = [
     {
         name: "First Ride Free",

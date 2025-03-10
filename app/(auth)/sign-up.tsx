@@ -38,7 +38,14 @@ const SignUp: React.FC = () => {
     const backgroundColor = useThemeColor({}, "background");
     const color = useThemeColor({}, "primary");
     const method = useForm<AuthSchemaType>({
-        resolver: zodResolver(authSchema.omit({ confirm_password: true })),
+        resolver: zodResolver(
+            authSchema.pick({
+                email: true,
+                password: true,
+                term: true,
+                user_type: true
+            })
+        ),
         defaultValues: {
             email: "",
             password: "",
@@ -52,10 +59,12 @@ const SignUp: React.FC = () => {
         try {
             const { data, error } = await signup(value);
             if (error) {
+                console.log("error", error);
                 toastMessage(error?.data?.message, "error");
                 return;
             }
             if (data.success) {
+                console.log("data", data);
                 setShowModal(true);
             }
         } catch (error) {
@@ -64,12 +73,14 @@ const SignUp: React.FC = () => {
     };
     const onPressVerify = async () => {
         const { data, error } = await verify({ otp, email });
-
+        toastMessage(
+            data?.success ? "Successful" : "An error occurred",
+            error ? error?.data?.message || error.error : data?.message
+        );
         if (error) {
-            toastMessage(error?.data?.message, "error");
+            console.log("error", error);
         }
         if (data?.success) {
-            toastMessage(data.message, "success");
             setShowModal(false);
             router.navigate("sign-in");
         }
@@ -139,24 +150,17 @@ const SignUp: React.FC = () => {
                             ]}
                             iconSize={16}
                         />
-                        <View className="flex-row items-center space-x-2">
+                        <View className="flex-row items-center justify-between">
                             <CustomFormField
                                 fieldType={FormFieldType.CHECKBOX}
                                 secureTextEntry={togglePassword}
                                 control={control}
                                 name="terms"
-                                label={
-                                    <View
-                                        className="flex-row items-center
-                                space-x-1"
-                                    >
-                                        <ThemedText>I agree to Kora</ThemedText>
-                                        <ThemedText style={{ color }}>
-                                            Terms and Conditions
-                                        </ThemedText>
-                                    </View>
-                                }
+                                label="I agree to Kora"
                             />
+                            <Link style={{ color }} className="" href="policy">
+                                Privacy Policy
+                            </Link>
                         </View>
 
                         <View className="items-center space-y-4">

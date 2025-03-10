@@ -1,85 +1,38 @@
-import React from "react";
-import { View, TextInput, Text, StyleSheet } from "react-native";
-import { Controller } from "react-hook-form";
+import React, { forwardRef } from "react";
+import { TextInput, TextInputProps } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
-interface TextAreaProps {
-    control: any;
+interface InputProps extends TextInputProps {
     name: string;
     label: string;
-    placeholder?: string;
-    numberOfLines?: number;
+    rules?: object;
+    onChange: (text: string) => void;
+    onBlur: () => void;
+    value: string;
 }
 
-export default function TextArea({
-    control,
-    name,
-    label,
-    placeholder,
-    numberOfLines = 4
-}: TextAreaProps) {
-    const backgroundColor = useThemeColor({}, "card");
-    const textColor = useThemeColor({}, "text");
-    const borderColor = useThemeColor({}, "border");
-    const placeholderColor = useThemeColor({}, "placeholder");
+const TextArea = forwardRef<TextInput, InputProps>(
+    ({ name, onChange, onBlur, value, style, ...otherProps }, ref) => {
+        const textColor = useThemeColor({}, "text");
+        const placeholderColor = useThemeColor({}, "placeholder");
 
-    return (
-        <View style={styles.container}>
-            <Text style={[styles.label, { color: textColor }]}>{label}</Text>
-            <Controller
-                control={control}
-                name={name}
-                render={({
-                    field: { onChange, onBlur, value },
-                    fieldState: { error }
-                }) => (
-                    <>
-                        <TextInput
-                            style={[
-                                styles.textArea,
-                                {
-                                    backgroundColor,
-                                    borderColor: error ? "red" : borderColor,
-                                    color: textColor
-                                }
-                            ]}
-                            placeholder={placeholder}
-                            placeholderTextColor={placeholderColor}
-                            multiline
-                            numberOfLines={numberOfLines}
-                            onBlur={onBlur}
-                            onChangeText={onChange}
-                            value={value}
-                        />
-                        {error && (
-                            <Text style={styles.error}>{error.message}</Text>
-                        )}
-                    </>
-                )}
+        return (
+            <TextInput
+                className="h-44 w-full"
+                ref={ref}
+                style={[{ color: textColor, textAlignVertical: "top" }, style]}
+                placeholderTextColor={placeholderColor}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                multiline
+                numberOfLines={10}
+                {...otherProps}
             />
-        </View>
-    );
-}
-
-const styles = StyleSheet.create({
-    container: {
-        marginBottom: 16
-    },
-    label: {
-        marginBottom: 4,
-        fontSize: 14,
-       // fontWeight: "bold"
-    },
-    textArea: {
-        borderWidth: 0,
-        borderRadius: 8,
-        padding: 12,
-        minHeight: 100,
-        textAlignVertical: "top" // Makes text start from the top
-    },
-    error: {
-        color: "red",
-        marginTop: 4,
-        fontSize: 12
+        );
     }
-});
+);
+
+TextArea.displayName = "TextArea";
+
+export default TextArea;

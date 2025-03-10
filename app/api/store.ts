@@ -21,7 +21,7 @@ import {
 const persistConfig = {
     key: "root",
     storage: AsyncStorage,
-    blacklist: ["global"]
+    blacklist: ["global", "api"]
 };
 
 // Root reducer combining all slices

@@ -35,6 +35,7 @@ import { onboardingMetaData } from "@/lib/data";
 import countries from "@/lib/countries";
 import { useUpdateUserMutation } from "@/redux/user/userApiSlice";
 import { useGetUserQuery } from "@/redux/user/userApiSlice";
+import { useSignoutMutation } from "@/redux/auth/authApiSlice";
 
 import { useLocalSearchParams } from "expo-router";
 export enum ModalOptions {
@@ -43,7 +44,6 @@ export enum ModalOptions {
     NOTIFICATION = "notification",
     SECURITY = "security",
     PAYMENT = "payment",
-    LINKED = "linked",
     APPEARANCE = "appearance",
     HELP = "help",
     RATE = "rate"
@@ -51,7 +51,7 @@ export enum ModalOptions {
 const Index = () => {
     const { userId } = useAuth();
     const { data, error } = useGetUserQuery(userId);
-console.log('data', data,error)
+    const [signout, { isLoading }] = useSignoutMutation();
     const color = useThemeColor({}, "text");
     const iconColor = useThemeColor({}, "icon");
     const primary = useThemeColor({}, "primary");
@@ -129,7 +129,17 @@ console.log('data', data,error)
                 </TouchableOpacity>
 
                 <ScrollView>
-                    <ThemedView
+                    {["car_owner", "driver", "company"].includes(
+                        user.user_type
+                    ) && (
+                        <View>
+                            <ThemedButton
+                                onPress={() => router.navigate("list-car")}
+                                title="list car"
+                            />
+                        </View>
+                    )}
+                    <View
                         className="rounded-md px-2 py-2 border
                 border-gray-200"
                     >
@@ -153,11 +163,7 @@ console.log('data', data,error)
                             leftIcon="card-outline"
                             title="Payment methods"
                         />
-                        <Option
-                            onPress={() => onPressOption("LINKED")}
-                            leftIcon="link-outline"
-                            title="Linked Accounts"
-                        />
+
                         <Option
                             onPress={() => onPressOption("APPEARANCE")}
                             leftIcon="eye-outline"
@@ -174,11 +180,11 @@ console.log('data', data,error)
                             title="Rate Us"
                         />
                         <Option
-                            onPress={() => onPressOption("SIGNOUT")}
+                            onPress={signout}
                             leftIcon="exit-outline"
                             title="Sign Out"
                         />
-                    </ThemedView>
+                    </View>
                 </ScrollView>
             </SafeAreaView>
             <ProfileModal
@@ -187,6 +193,9 @@ console.log('data', data,error)
                 option={option}
                 user={user}
             />
+            {isLoading && (
+                <ScreenLoader title="Making update" messages="Please wait..." />
+            )}
         </>
     );
 };

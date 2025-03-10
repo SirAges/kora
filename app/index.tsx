@@ -1,14 +1,33 @@
 import { Image, Alert } from "react-native";
 import ThemedView from "@/components/ThemedView";
 import ThemedText from "@/components/ThemedText";
+import * as LocalAuthentication from "expo-local-authentication";
 import { useEffect } from "react";
 import { router } from "expo-router";
+import useAuth from "@/hooks/useAuth";
+
 export default function Index() {
+    const { isSignedIn, fingerprint } = useAuth();
+    const fingerprintAuth = async () => {
+        if (fingerprint && isSignedIn) {
+            const result = await LocalAuthentication.authenticateAsync({
+                promptMessage: "Authenticate with fingerprint",
+                fallbackLabel: "Use PIN or password"
+            });
+            if (result.success) {
+                router.replace("intro");
+            }
+        } else {
+          setTimeout(()=>{router.replace("intro");},2000)
+            
+        }
+    };
+
     useEffect(() => {
-        const timeout = setTimeout(() => {
-            router.replace("intro");
-        }, 4000);
+        fingerprintAuth();
+        return () => {};
     }, []);
+
     return (
         <ThemedView
             lightColor="#1BA7FF"

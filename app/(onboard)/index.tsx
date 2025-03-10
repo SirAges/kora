@@ -134,12 +134,13 @@ const Index = () => {
                 value: transformedData
             });
 
+            if (data?.success) {
+              console.log(data)
+                dispatch(setCredentials(null));
+            }
             if (error) {
                 console.log(error);
                 return;
-            }
-            if (data?.success) {
-                dispatch(setCredentials(null));
             }
         } catch (error) {
             console.error("Error updating user:", error);

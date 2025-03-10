@@ -7,6 +7,7 @@ import {
     RegisterOptions
 } from "react-hook-form";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import ThemedText from "@/components/ThemedText";
 import { default as ExpoCheckBox } from "expo-checkbox";
 
 interface CheckboxProps {
@@ -23,6 +24,7 @@ const Checkbox = forwardRef<ExpoCheckBox, CheckboxProps>(
         {
             control,
             name,
+            label,
             onChange,
             onBlur,
             value,
@@ -43,13 +45,16 @@ const Checkbox = forwardRef<ExpoCheckBox, CheckboxProps>(
         }));
 
         return (
-            <ExpoCheckBox
-                ref={ref}
-                value={value}
-                onValueChange={onChange}
-                color={value ? iconColor : undefined}
-                {...otherProps}
-            />
+            <View className="flex-row items-center space-x-2">
+                <ExpoCheckBox
+                    ref={ref}
+                    value={value}
+                    onValueChange={onChange}
+                    color={value ? iconColor : undefined}
+                    {...otherProps}
+                />
+                <ThemedText>{label}</ThemedText>
+            </View>
         );
     }
 );

@@ -1,5 +1,14 @@
 import { z } from "zod";
-
+import {
+    CAR_TYPES,
+    FUEL_TYPES,
+    TRANSMISSIONS,
+    MILEAGE_TYPES,
+    FUEL_POLICIES,
+    CONFIRMATION_POLICIES,
+    CANCELLATION_POLICIES,
+    INSURANCE_TYPES
+} from "../constants/enums";
 // Regular Expressions
 
 const passwordRegex =
@@ -33,7 +42,7 @@ export type AuthSchemaType = z.infer<typeof authSchema>;
 export const fileSchema = z.object({
     mimeType: z.string(),
     name: z.string(),
-    size: z.number().int().nonnegative(),
+    size: z.coerce.number().int().nonnegative(),
     uri: z.string().url().or(z.string()) // Accepts both URLs and file paths
 });
 
@@ -105,3 +114,101 @@ export const locationSchema = z.object({
     endDate: z.string({ message: "end date is required" })
 });
 export type LocationSchemaType = z.infer<typeof locationSchema>;
+
+// ** File Schema **
+const FileSchema = z.object({
+    secure_url: z.string().url({ message: "Document URL is required" }),
+    format: z.literal("application/pdf"),
+    size: z.coerce.number().min(0, { message: "File size cannot be negative" }),
+    public_id: z.string().min(1, { message: "Document public ID is required" })
+});
+
+// ** Insurance Schema **
+const InsuranceSchema = z.object({
+    type: z.enum(INSURANCE_TYPES),
+    price_per_day: z.coerce
+        .number()
+        .min(0, { message: "Price per day cannot be negative" })
+});
+
+// ** Extra Services Schema **
+const ExtraSchema = z.object({
+    name: z.string().min(1, { message: "Extra name is required" }),
+    extra: z.coerce
+        .number()
+        .min(0, { message: "Extra cost cannot be negative" }),
+    description: z.string().min(1, { message: "Description is required" })
+});
+
+// ** Mileage Policy Schema **
+const MileagePolicySchema = z.object({
+    type: z.enum(MILEAGE_TYPES),
+    daily_limit: z.coerce.number().min(0).optional(),
+    extra_mile_charge: z.coerce.number().min(0).optional(),
+    description: z.string().optional()
+});
+
+// ** Fuel Policy Schema **
+const FuelPolicySchema = z.object({
+    type: z.enum(FUEL_POLICIES),
+    prepaid_cost: z.coerce.number().min(0).optional(),
+    no_refund: z.boolean().optional(),
+    service_fee: z.coerce.number().min(0).optional(),
+    fuel_price_per_liter: z.coerce.number().min(0).optional(),
+    included_in_price: z.boolean().optional(),
+    minimum_return_charge: z.coerce.number().min(0).optional(),
+    charging_fee: z.coerce.number().min(0).optional(),
+    penalty_fee: z.coerce.number().min(0).optional()
+});
+
+// ** Confirmation Policy Schema **
+const ConfirmationPolicySchema = z.object({
+    type: z.enum(CONFIRMATION_POLICIES),
+    security_deposit: z.coerce.number().min(0).optional()
+});
+
+// ** Cancellation Policy Schema **
+const CancellationPolicySchema = z.object({
+    type: z.enum(CANCELLATION_POLICIES),
+    refund_percentage: z.coerce.number().min(0).optional()
+});
+
+// ** Car Schema **
+export const carSchema = z.object({
+    make: z.string().min(1, { message: "Car make is required" }),
+    model: z.string().min(1, { message: "Car model is required" }),
+    year: z.coerce
+        .number()
+        .min(1886, { message: "Year must be greater than 1886" })
+        .max(new Date().getFullYear(), {
+            message: "Year cannot be in the future"
+        }),
+    car_type: z.enum(CAR_TYPES),
+    fuel_type: z.enum(FUEL_TYPES),
+    transmission: z.enum(TRANSMISSIONS),
+    mileage: z.coerce
+        .number()
+        .min(0, { message: "Mileage cannot be negative" }),
+    seats: z.coerce.number().min(1, { message: "Seats cannot be less than 1" }),
+    doors: z.coerce.number().min(1, { message: "Doors cannot be less than 1" }),
+    color: z.string().min(1, { message: "Color is required" }),
+    featured_image: FileSchema.optional(),
+    images: z.array(FileSchema).optional(),
+    price_per_day: z.coerce
+        .number()
+        .min(0, { message: "Price per day cannot be negative" }),
+
+    insurance: z.array(InsuranceSchema).optional(),
+    mileage_policy: MileagePolicySchema.optional(),
+    fuel_policy: z.array(FuelPolicySchema).optional(),
+    confirmation_policy: z.array(ConfirmationPolicySchema).optional(),
+    cancellation_policy: z.array(CancellationPolicySchema).optional(),
+    registration_document: FileSchema,
+    insurance_document: FileSchema,
+    inspection_document: FileSchema,
+    extra_services: z.array(ExtraSchema).optional(),
+    drivers: z.array(z.string()).optional(),
+    pending_drivers: z.array(z.string()).optional()
+});
+
+export type CarSchemaType = z.infer<typeof carSchema>;

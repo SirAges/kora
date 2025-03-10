@@ -13,11 +13,14 @@ import {
     Button,
     TextInput
 } from "react-native";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import * as LocalAuthentication from "expo-local-authentication";
 import { useSelector, useDispatch } from "react-redux";
 import * as FilePickerExpo from "expo-document-picker";
 import FileViewer from "./FileViewer";
-
+import CustomFormField, { FormFieldType } from "@/components/CustomFormField";
 import { selectCurrentBooking, addToBooking } from "@/redux/globalSlice";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import ProviderDetails from "@/components/ProviderDetails";
@@ -27,6 +30,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import ThemedText from "@/components/ThemedText";
 import ThemedView from "@/components/ThemedView";
 import ThemedButton from "@/components/ThemedButton";
+import Input from "@/components/Input";
 import ThemedModal from "@/components/ThemedModal";
 import Alert from "@/components/Alert";
 import ScreenLoader from "@/components/ScreenLoader";
@@ -38,12 +42,14 @@ import {
     useGenerate2FaMutation,
     useRemoveConnectedDeviceMutation
 } from "@/redux/user/userApiSlice";
+import { setEmail } from "@/redux/auth/authSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as FileSystem from "expo-file-system";
 import { persistor } from "@/app/api/store"; // Adjust if necessary
 import { FontAwesome } from "@expo/vector-icons"; // For icons
 import countries from "@/lib/countries";
 import { toastMessage } from "@/lib/utils";
+import { paymentMethods, reportIssues, faqs } from "@/lib/data";
 import Toast from "react-native-toast-message";
 import { toastConfig } from "@/app/_layout";
 const ProfileModal = ({ showModal, setShowModal, option, user }) => {
@@ -66,13 +72,10 @@ const ProfileModal = ({ showModal, setShowModal, option, user }) => {
             content = <RenderSecurity user={user} />;
             break;
         case "payment":
-            content = <RenderPayment />;
-            break;
-        case "linked":
-            content = <RenderLinked />;
+            content = <RenderPayment user={user} />;
             break;
         case "appearance":
-            content = <RenderAppearance />;
+            content = <RenderAppearance user={user} />;
             break;
         case "help":
             content = <RenderHelp />;
@@ -100,25 +103,23 @@ const ProfileModal = ({ showModal, setShowModal, option, user }) => {
                     />
                 </View>
                 <SafeAreaView
-                    style={{ backgroundColor: card }}
+                    style={{ backgroundColor }}
                     className="flex-1 px-2 py-2"
                 >
-                    <ScrollView>
-                        <View className="flex-row items-center justify-between">
-                            <Ionicons
-                                name="chevron-back"
-                                size={24}
-                                color={iconColor}
-                            />
-                            <ThemedText
-                                className="text-lg font-semibold px-4 capitalize
+                    <View className="flex-row items-center justify-between">
+                        <Ionicons
+                            name="chevron-back"
+                            size={24}
+                            color={iconColor}
+                        />
+                        <ThemedText
+                            className="text-lg font-semibold px-4 capitalize
                          flex-1"
-                            >
-                                {option}
-                            </ThemedText>
-                        </View>
-                        {content}
-                    </ScrollView>
+                        >
+                            {option}
+                        </ThemedText>
+                    </View>
+                    <ScrollView>{content}</ScrollView>
                 </SafeAreaView>
             </Modal>
         </>
@@ -320,7 +321,7 @@ const RenderProfile = ({ user, onUpdate }) => {
 
                                     {editing === key ? (
                                         <View className="flex-row items-center border rounded-md border-gray-200 px-2 h-10 w-36">
-                                            <TextInput
+                                            <Input
                                                 className="rounded flex-1"
                                                 value={editValue}
                                                 onChangeText={setEditValue}
@@ -530,7 +531,11 @@ const RenderPreference = ({ user }) => {
                 <ThemedText className="text-[8px] font-semibold text-right flex-1 uppercase">
                     {field}
                 </ThemedText>
-                <MaterialCommunityIcons name="chevron-right" size={20} />
+                <MaterialCommunityIcons
+                    name="chevron-right"
+                    size={20}
+                    color={iconColor}
+                />
             </View>
         </TouchableOpacity>
     );
@@ -702,7 +707,9 @@ const RenderNotification = ({ user }) => {
                                 true: iconColor + 70
                             }}
                             thumbColor={
-                                user?.notification_preferences[item?.value]
+                                (user?.notification_preferences || {})[
+                                    item?.value
+                                ]
                                     ? iconColor
                                     : color
                             }
@@ -710,11 +717,16 @@ const RenderNotification = ({ user }) => {
                             onValueChange={value =>
                                 onSwitchChange(value, item?.value)
                             }
-                            value={user?.notification_preferences[item?.value]}
+                            value={
+                                (user?.notification_preferences || {})[
+                                    item?.value
+                                ]
+                            }
                         />
                     </View>
                 )}
             />
+
             {(data?.success || data?.error) && (
                 <Alert
                     title={data?.success ? "Successfull" : "An error occured"}
@@ -734,9 +746,10 @@ const RenderNotification = ({ user }) => {
 };
 const RenderSecurity = ({ user }) => {
     const [updateUser, { data, isLoading }] = useUpdateUserMutation();
+    const dispatch = useDispatch();
     const [
         removeConnectedDevice,
-        { data: deviceDta, isLoading: deviceIsLoading }
+        { data: deviceData, isLoading: deviceIsLoading }
     ] = useRemoveConnectedDeviceMutation();
     const [generate2Fa, { data: gData, isLoading: gIsLoading }] =
         useGenerate2FaMutation();
@@ -782,16 +795,7 @@ const RenderSecurity = ({ user }) => {
                 "Permanently remove your account and all associated data."
         }
     ];
-    const onRemoveDevicePress = async device_id => {
-        const { data, error } = await removeConnectedDevice({
-            user_id: user._id,
-            device_id
-        });
-        toastMessage(
-            data?.success ? "Successful" : "An error occurred",
-            error?error?.data?.message||error.error:data?.message
-        );
-    };
+
     const onSwitchChange = async (value, key) => {
         if (key === "google_authenticator") {
             if (!user.security_preferences[key]) {
@@ -813,10 +817,14 @@ const RenderSecurity = ({ user }) => {
                 promptMessage: "Enable fingerprint Authentication"
             });
             if (result.success) {
-                await updateUser({
+                const { data, error } = await updateUser({
                     user_id: user._id,
                     value: { security_preferences: { [key]: value } }
                 });
+                console.log("datadatadata", data);
+                if (data?.success) {
+                    dispatch(setEmail(user?.email));
+                }
             }
             return;
         }
@@ -880,57 +888,6 @@ const RenderSecurity = ({ user }) => {
                     </View>
                 )}
             />
-            <View className="space-y-2">
-                <ThemedText className="font-semibold">
-                    Manage connected Devices
-                </ThemedText>
-                <ThemedText type="subtitle" className="text-sm">
-                    View and manage all devices currently logged into your
-                    account.
-                </ThemedText>
-                <View>
-                    {user?.connected_devices.map(
-                        ({
-                            device_id,
-                            brand,
-                            model_name,
-                            device_type,
-                            device_name
-                        }) => (
-                            <View
-                                className="rounded-md border-gray-200 border px-2
-                        py-2 my-1"
-                            >
-                                <View className="flex-row items-center justify-between py-1">
-                                    <ThemedText className="text-sm font-semibold">
-                                        {device_name}
-                                    </ThemedText>
-                                    <MaterialCommunityIcons
-                                        onPress={() =>
-                                            onRemoveDevicePress(device_id)
-                                        }
-                                        name="trash-can"
-                                        size={20}
-                                        color={danger}
-                                    />
-                                </View>
-
-                                <View
-                                    className="flex-row items-center
-                                justify-between py-1"
-                                >
-                                    <ThemedText className="text-xs">
-                                        {brand}
-                                    </ThemedText>
-                                    <ThemedText className="text-xs">
-                                        {model_name}
-                                    </ThemedText>
-                                </View>
-                            </View>
-                        )
-                    )}
-                </View>
-            </View>
 
             <TouchableOpacity
                 onPress={() =>
@@ -993,18 +950,429 @@ const RenderSecurity = ({ user }) => {
         </View>
     );
 };
+
+const RenderPayment = ({ user }) => {
+    const iconColor = useThemeColor({}, "icon");
+    const [updateUser, { isLoading }] = useUpdateUserMutation();
+    const onMethodPress = async slug => {
+        const { data, error } = await updateUser({
+            user_id: user._id,
+            value: {
+                setting: { payment_method: slug }
+            }
+        });
+
+        toastMessage(
+            data?.success ? "Successful" : "An error occurred",
+            error ? error?.data?.message || error.error : data?.message
+        );
+    };
+    return (
+        <View>
+            {paymentMethods.map(({ name, slug, image, description }) => (
+                <TouchableOpacity
+                    onPress={() => onMethodPress(slug)}
+                    className="flex-row items-center rounded-md border-gray-200 border px-2
+                        py-2 my-1"
+                >
+                    <Image
+                        className="h-8 w-8 rounded-full"
+                        contentFit="contain"
+                        source={image}
+                    />
+                    <View className="flex-1 pl-2">
+                        <View className="flex-row items-center justify-between py-1">
+                            <ThemedText className="text-sm font-semibold">
+                                {name}
+                            </ThemedText>
+                            <MaterialCommunityIcons
+                                name={
+                                    user?.setting?.payment_method === slug
+                                        ? "radiobox-marked"
+                                        : "radiobox-blank"
+                                }
+                                size={20}
+                                color={iconColor}
+                            />
+                        </View>
+
+                        <View
+                            className="flex-row items-center
+                                justify-between py-1"
+                        >
+                            <ThemedText className="text-xs">
+                                {description}
+                            </ThemedText>
+                        </View>
+                    </View>
+                </TouchableOpacity>
+            ))}
+            {isLoading && (
+                <ScreenLoader title="Making update" messages="Please wait..." />
+            )}
+        </View>
+    );
+};
+
+const RenderAppearance = ({ user }) => {
+    const iconColor = useThemeColor({}, "icon");
+    const color = useThemeColor({}, "text");
+    const card = useThemeColor({}, "card");
+    const [updateUser, { data, isLoading }] = useUpdateUserMutation();
+    const onSwitchChange = async (value, key) => {
+        await updateUser({
+            user_id: user._id,
+            value: { setting: { darkmode: value } }
+        });
+    };
+    return (
+        <View className="py-2">
+            <View
+                className="flex-row items-center justify-between border
+            border-gray-200 py-2 px-2 rounded-md"
+            >
+                <ThemedText className="font-semibold text-md capitalize">
+                    Dark mode
+                </ThemedText>
+                <Switch
+                    trackColor={{
+                        false: color + 70,
+                        true: iconColor + 70
+                    }}
+                    thumbColor={
+                        (user?.setting || {})["darkmode"] ? iconColor : color
+                    }
+                    ios_backgroundColor={card}
+                    onValueChange={value => onSwitchChange(value)}
+                    value={(user?.setting || {})["darkmode"]}
+                />
+            </View>
+            {isLoading && (
+                <ScreenLoader title="Making update" messages="Please wait..." />
+            )}
+        </View>
+    );
+};
+
 const RenderHelp = () => {
-    return <View></View>;
+    const [options, setOptions] = useState({ faqs: true, report: false });
+    const iconColor = useThemeColor({}, "icon");
+    const [selectedIssue, setSelectedIssue] = useState(null);
+    const [selectedFeedback, setSelectedFeedback] = useState(null);
+    const [formData, setFormData] = useState({ name: "", description: "" });
+    const schema = z.object({
+        name: z.string().min(2),
+        description: z.string().min(2),
+        complaint_type: z.string().min(2)
+    });
+    const method = useForm<z.infer<typeof schema>>({
+        resolver: zodResolver(schema),
+        defaultValues: {
+            name: "",
+            description: "",
+            complain: ""
+        }
+    });
+    const { control, handleSubmit, reset } = method;
+    // Function to handle form submission
+    const onSubmit = () => {
+        console.log("Submitted Issue:", selectedIssue, formData);
+        alert("Issue reported successfully!");
+        setSelectedIssue(null);
+        reset();
+    };
+    const handleToggle = key => {
+        setOptions(prev =>
+            Object.keys(prev).reduce((acc, curr) => {
+                acc[curr] = curr === key ? !prev[key] : false;
+                return acc;
+            }, {})
+        );
+    };
+
+    const Features = ({ item }) => {
+        const { id, question, answer } = item;
+        return (
+            <View
+                key={id}
+                className="px-2 py-2 rounded-md border-gray-200
+            border my-1 space-y-2"
+            >
+                <ThemedText className="font-semibold capitalize">
+                    {question}
+                </ThemedText>
+                <ThemedText>{answer}</ThemedText>
+            </View>
+        );
+    };
+
+    return (
+        <View>
+            <TouchableOpacity
+                onPress={() => handleToggle("faqs")}
+                className="flex-row items-center justify-between my-4"
+            >
+                <ThemedText className="font-semibold uppercase text-lg">
+                    FAQS
+                </ThemedText>
+                <MaterialCommunityIcons
+                    name={options.faqs ? "chevron-up" : "chevron-down"}
+                    size={20}
+                    color={iconColor}
+                />
+            </TouchableOpacity>
+
+            {options.faqs && faqs.map(item => <Features item={item} />)}
+            <TouchableOpacity
+                onPress={() => handleToggle("report")}
+                className="flex-row items-center justify-between my-2"
+            >
+                <ThemedText className="font-semibold uppercase text-lg">
+                    Report an Issue
+                </ThemedText>
+                <MaterialCommunityIcons
+                    name={options.report ? "chevron-up" : "chevron-down"}
+                    size={20}
+                    color={iconColor}
+                />
+            </TouchableOpacity>
+            {options.report &&
+                reportIssues.map(item => (
+                    <TouchableOpacity
+                        key={item.id}
+                        className="px-2 py-2 rounded-md border-gray-200 border my-1 space-y-2"
+                        onPress={() => setSelectedIssue(item)}
+                    >
+                        <ThemedText className="text-lg font-semibold">
+                            {item.category}
+                        </ThemedText>
+                        <ThemedText className="text-gray-600">
+                            {item.description}
+                        </ThemedText>
+                    </TouchableOpacity>
+                ))}
+
+            <Modal
+                statusBarTranslucent={true}
+                presentationStyle={"formSheet"}
+                visible={selectedIssue !== null}
+                animationType="fade"
+                onRequestClose={() => setSelectedIssue(null)}
+            >
+                <View className="flex-1 px-2 py-2">
+                    <ScrollView>
+                        {selectedIssue && (
+                            <View className="h-full p-4 mt-4 rounded-lg shadow">
+                                <ThemedText className="text-lg font-bold text-center py-2">
+                                    {selectedIssue.category}
+                                </ThemedText>
+
+                                {selectedIssue.steps && (
+                                    <View>
+                                        <ThemedText className="text-lg font-bold py-2">
+                                            Steps to Follow
+                                        </ThemedText>
+                                        {selectedIssue.steps.map(
+                                            (step, index) => (
+                                                <ThemedText
+                                                    key={index}
+                                                    className=""
+                                                >
+                                                    • {step}
+                                                </ThemedText>
+                                            )
+                                        )}
+                                    </View>
+                                )}
+
+                                {selectedIssue.emergency_contacts && (
+                                    <View>
+                                        <ThemedText className="text-lg font-bold py-2">
+                                            Emergency Contacts
+                                        </ThemedText>
+                                        {selectedIssue.emergency_contacts.map(
+                                            (contact, index) => (
+                                                <ThemedText
+                                                    key={index}
+                                                    className="py-1"
+                                                >
+                                                    {contact.name}:{" "}
+                                                    {contact.phone}
+                                                </ThemedText>
+                                            )
+                                        )}
+                                    </View>
+                                )}
+
+                                {selectedIssue.resolution_process && (
+                                    <View>
+                                        <ThemedText className="text-lg font-bold py-2">
+                                            Resolution Process
+                                        </ThemedText>
+                                        {selectedIssue.resolution_process.map(
+                                            (process, index) => (
+                                                <ThemedText
+                                                    key={index}
+                                                    className=""
+                                                >
+                                                    • {process}
+                                                </ThemedText>
+                                            )
+                                        )}
+                                    </View>
+                                )}
+
+                                <View className="flex-1 space-y-3">
+                                    <CustomFormField
+                                        fieldType={FormFieldType.INPUT}
+                                        control={control}
+                                        placeholder="John Doe"
+                                        name="full_name"
+                                        leftIconName={"person"}
+                                    />
+                                    {(selectedIssue.id === 1 ||
+                                        selectedIssue.id == 2 ||
+                                        selectedIssue.id === 4) && (
+                                        <CustomFormField
+                                            fieldType={
+                                                FormFieldType.PHONE_INPUT
+                                            }
+                                            control={control}
+                                            placeholder="+233 987 567 6544"
+                                            name="phone"
+                                            leftIconName={"call"}
+                                        />
+                                    )}
+                                    {selectedIssue.id === 1 && (
+                                        <CustomFormField
+                                            fieldType={FormFieldType.INPUT}
+                                            control={control}
+                                            placeholder="location"
+                                            name="description"
+                                            leftIconName={"location"}
+                                        />
+                                    )}
+                                    <CustomFormField
+                                        fieldType={FormFieldType.TEXTAREA}
+                                        control={control}
+                                        placeholder="description"
+                                        name="description"
+                                    />
+                                    <CustomFormField
+                                        fieldType={FormFieldType.FILE}
+                                        control={control}
+                                        instruction="pick a file to help us quickly respond to
+                        your request"
+                                        placeholder="image"
+                                        name="image"
+                                    />
+
+                                    {selectedIssue?.complaint_type && (
+                                        <>
+                                            <CustomFormField
+                                                fieldType={FormFieldType.INPUT}
+                                                control={control}
+                                                placeholder="driver or customer name"
+                                                name="driver_customer_name"
+                                                leftIconName={"person"}
+                                            />{" "}
+                                            <CustomFormField
+                                                fieldType={FormFieldType.SELECT}
+                                                control={control}
+                                                placeholder=""
+                                                name="complaint_type"
+                                                options={selectedIssue.complaint_type.map(
+                                                    c => ({
+                                                        label: c,
+                                                        value: c
+                                                    })
+                                                )}
+                                            />
+                                        </>
+                                    )}
+                                </View>
+                            </View>
+                        )}
+                    </ScrollView>
+                    <ThemedButton title="Submit issue" />
+                </View>
+            </Modal>
+        </View>
+    );
 };
 const RenderRate = () => {
-    return <View></View>;
-};
-const RenderPayment = () => {
-    return <View></View>;
-};
-const RenderLinked = () => {
-    return <View></View>;
-};
-const RenderAppearance = () => {
-    return <View></View>;
+    const schema = z.object({
+        rating: z.number(),
+        comment: z.string().min(2)
+    });
+
+    const method = useForm<z.infer<typeof schema>>({
+        resolver: zodResolver(schema),
+        defaultValues: {
+            rating: 0, // Changed from "" to 0
+            comment: ""
+        }
+    });
+
+    const { control, handleSubmit, reset, setValue } = method;
+
+    const onSubmit = handleSubmit(data => {
+        alert("Issue reported successfully!");
+        reset();
+    });
+
+    const [rating, setRating] = useState(0);
+
+    return (
+        <View className="flex-1 py-2 px-2">
+            <View className=" items-center justify-center flex-1">
+                <ThemedText className="text-2xl font-extrabold mb-2">
+                    Rate Your Experience
+                </ThemedText>
+                <ThemedText className="text-center text-gray-600 mb-5">
+                    Your feedback helps us improve. Let us know what you think
+                    about our service!
+                </ThemedText>
+
+                {/* Review Input */}
+                <ThemedText className="text-lg font-bold mb-3">
+                    Write your review
+                </ThemedText>
+                <View className="w-full  ">
+                    <CustomFormField
+                        fieldType={FormFieldType.TEXTAREA}
+                        control={control}
+                        placeholder="Comment here"
+                        name="comment"
+                    />
+                </View>
+
+                <ThemedText className="text-lg font-bold mt-5 mb-3">
+                    Rate us
+                </ThemedText>
+                <View className="flex-row py-2">
+                    {[1, 2, 3, 4, 5].map(num => (
+                        <TouchableOpacity
+                            key={num}
+                            onPress={() => {
+                                setRating(num);
+                                setValue("rating", num);
+                            }}
+                        >
+                            <MaterialCommunityIcons
+                                name="star"
+                                size={40}
+                                className="mx-1"
+                                color={num <= rating ? "gold" : "gray"}
+                            />
+                        </TouchableOpacity>
+                    ))}
+                </View>
+            </View>
+
+            <View className="justify-end pb-5">
+                <ThemedButton title="Submit Review" onPress={onSubmit} />
+            </View>
+        </View>
+    );
 };

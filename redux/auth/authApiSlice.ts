@@ -51,9 +51,8 @@ export const authApiSlice = apiSlice.injectEndpoints({
                 try {
                     const { data } = await queryFulfilled;
 
-                    if (data && data !== undefined) {
-                        dispatch(signOut());
-                        dispatch(setPersist("auth"));
+                    if (data) {
+                        dispatch(setCredentials(null));
                     }
                 } catch (err) {}
             }

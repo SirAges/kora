@@ -10,6 +10,7 @@ export default function RootLayout() {
             <Stack.Screen name="index" />
             <Stack.Screen name="[car]" />
             <Stack.Screen name="rent_a_car" />
+            <Stack.Screen name="list-car" />
             <Stack.Screen name="promo" />
       
         </Stack>

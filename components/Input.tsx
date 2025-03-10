@@ -1,30 +1,29 @@
-import React, { useState, useEffect, forwardRef } from "react";
-import { TextInput, View, Text, StyleSheet, Image } from "react-native";
+import React, { forwardRef } from "react";
+import { TextInput, TextInputProps } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import * as Icon from "@expo/vector-icons";
-interface InputProps {
+
+interface InputProps extends TextInputProps {
     name: string;
-    placeholder?: string;
     label: string;
     rules?: object;
     onChange: (text: string) => void;
     onBlur: () => void;
     value: string;
 }
-
 const Input = forwardRef<TextInput, InputProps>(
-    ({ style, name, onChange, onBlur, value, ...otherProps }, ref) => {
+    ({ name, onChange, onBlur, value, style, ...otherProps }, ref) => {
         const textColor = useThemeColor({}, "text");
-        const borderColor = useThemeColor({}, "border");
         const placeholderColor = useThemeColor({}, "placeholder");
 
         return (
             <TextInput
                 ref={ref}
-                className="px-1 flex-1"
+                className=""
                 style={[
                     {
-                        color: textColor
+                        color: textColor,
+                        textAlignVertical: "center", // Important for Android
+                        paddingVertical: 0 // Ensure no extra padding
                     },
                     style
                 ]}
@@ -37,5 +36,7 @@ const Input = forwardRef<TextInput, InputProps>(
         );
     }
 );
+
+Input.displayName = "Input";
 
 export default Input;

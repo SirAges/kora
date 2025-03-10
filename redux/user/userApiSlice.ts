@@ -1,5 +1,5 @@
 import { apiSlice } from "@/app/api/apiSlice";
-
+import { setDarkMode } from "@/redux/user/userSlice";
 export const userApiSlice = apiSlice.injectEndpoints({
     endpoints: builder => ({
         getUsers: builder.query({
@@ -21,10 +21,10 @@ export const userApiSlice = apiSlice.injectEndpoints({
                 url: `/users/${user_id}/verify2fa`,
                 method: "PUT",
                 body: value
-            }), invalidatesTags: (result, error, { user_id }) => [
+            }),
+            invalidatesTags: (result, error, { user_id }) => [
                 { type: "USERS", id: user_id }
             ]
-           
         }),
         generate2Fa: builder.mutation({
             query: user_id => ({
@@ -42,6 +42,16 @@ export const userApiSlice = apiSlice.injectEndpoints({
                 method: "PUT",
                 body: value
             }),
+            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+                try {
+                    const { data } = await queryFulfilled;
+
+                    if (data) {
+                        
+                        dispatch(setDarkMode(data.data.setting.darkmode));
+                    }
+                } catch (err) {}
+            },
             invalidatesTags: (result, error, { user_id }) => [
                 { type: "USERS", id: user_id }
             ]
@@ -86,14 +96,13 @@ export const userApiSlice = apiSlice.injectEndpoints({
             query: ({ user_id, value }) => ({
                 url: `/users/${user_id}/add-device`,
                 method: "PUT",
-                body:value
+                body: value
             })
         }),
         removeConnectedDevice: builder.mutation({
             query: ({ user_id, device_id }) => ({
                 url: `/users/${user_id}/remove-device/${device_id}`,
-                method: "PUT",
-                
+                method: "PUT"
             })
         }),
         applyDriver: builder.mutation({

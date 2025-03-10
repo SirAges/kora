@@ -45,7 +45,7 @@ const Select = forwardRef<View, SelectProps>(
             <View className="flex-1 py-2">
                 <TouchableOpacity onPress={() => setModalVisible(true)}>
                     <View
-                        className="flex-row  items-center
+                        className="flex-row items-center
                     flex-row"
                     >
                         <Text
@@ -57,7 +57,7 @@ const Select = forwardRef<View, SelectProps>(
                             {multiple
                                 ? (value && `${value.length} items selected`) ||
                                   "Select Item"
-                                : options.find(o => o.value === value)?.label ||
+                                :options&& options.find(o => o.value === value)?.label ||
                                   "Select..."}
                         </Text>
                         <Iconicons
@@ -91,10 +91,9 @@ const Select = forwardRef<View, SelectProps>(
                                 <ThemedText
                                     className="flex-1 capitalize font-semibold "
                                     style={{
-                                        color:value?.includes(item?.value)
-                                                ? "#ffffff"
-                                                : textColor
-                                          
+                                        color: value?.includes(item?.value)
+                                            ? "#ffffff"
+                                            : textColor
                                     }}
                                 >
                                     {item.label}
