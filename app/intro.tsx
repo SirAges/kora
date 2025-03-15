@@ -6,9 +6,12 @@ import ThemedText from "@/components/ThemedText";
 import ThemedButton from "@/components/ThemedButton";
 import Svg, { Path } from "react-native-svg";
 import { router } from "expo-router";
-
+import { useThemeColor } from "@/hooks/useThemeColor";
 import { intro } from "@/lib/data";
 const Intro = () => {
+    const backgroundColor = useThemeColor({}, "background");
+    const card = useThemeColor({}, "card");
+    const iconColor = useThemeColor({}, "icon");
     const [idx, setIdx] = useState<number>(0);
     const onPressContinue = () => {
         if (idx === intro.length - 1) {
@@ -20,11 +23,11 @@ const Intro = () => {
         router.replace("(root)");
     };
     return (
-        <ThemedView lightColor="#1BA7FF" className="flex-1">
+        <View style={{ backgroundColor }} className="flex-1">
             {intro.map(
                 ({ id, image, title, description }, i) =>
                     idx === i && (
-                        <ThemedView className="flex-1" key={id}>
+                        <View className="flex-1" key={id}>
                             <View
                                 className="h-3/5 w-full items-center
                             rounded-b-3xl"
@@ -36,7 +39,7 @@ const Intro = () => {
                                     alt={title}
                                 />
                             </View>
-                            <ThemedView
+                            <View
                                 className="px-2 py-4 h-2/5 
 "
                             >
@@ -83,8 +86,8 @@ const Intro = () => {
                                                 style={{
                                                     backgroundColor:
                                                         idx === index
-                                                            ? "#1BA7FF"
-                                                            : "#484848",
+                                                            ? iconColor
+                                                            : card,
                                                     width:
                                                         idx === index ? 20 : 8
                                                 }}
@@ -95,11 +98,11 @@ const Intro = () => {
                                         )
                                     )}
                                 </View>
-                            </ThemedView>
-                        </ThemedView>
+                            </View>
+                        </View>
                     )
             )}
-        </ThemedView>
+        </View>
     );
 };
 

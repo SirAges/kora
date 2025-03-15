@@ -1,12 +1,16 @@
-import { Image, Alert } from "react-native";
+import { Alert, View } from "react-native";
 import ThemedView from "@/components/ThemedView";
 import ThemedText from "@/components/ThemedText";
+import { Image } from "expo-image";
 import * as LocalAuthentication from "expo-local-authentication";
 import { useEffect } from "react";
 import { router } from "expo-router";
 import useAuth from "@/hooks/useAuth";
-
+import { useThemeColor } from "@/hooks/useThemeColor";
 export default function Index() {
+    const backgroundColor = useThemeColor({}, "background");
+    const card = useThemeColor({}, "card");
+    const iconColor = useThemeColor({}, "icon");
     const { isSignedIn, fingerprint } = useAuth();
     const fingerprintAuth = async () => {
         if (fingerprint && isSignedIn) {
@@ -18,8 +22,9 @@ export default function Index() {
                 router.replace("intro");
             }
         } else {
-          setTimeout(()=>{router.replace("intro");},2000)
-            
+            setTimeout(() => {
+                router.replace("intro");
+            }, 2000);
         }
     };
 
@@ -29,23 +34,24 @@ export default function Index() {
     }, []);
 
     return (
-        <ThemedView
-            lightColor="#1BA7FF"
+        <View
+            className="flex-1 items-center justify-center"
             style={{
-                flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
-                padding: 20
+                backgroundColor
             }}
         >
             <Image
-                style={{ width: 72, height: 72, resizeMode: "contain" }}
                 source={require("@/assets/images/icon.png")}
                 alt="icon"
+                className="w-44 h-44"
             />
-            <ThemedText style={{ letterSpace: 20 }} type="semibold">
+            <ThemedText
+                type="semibold"
+                className="text-2xl tracking-widest
+            uppercase w-full text-center"
+            >
                 kora
             </ThemedText>
-        </ThemedView>
+        </View>
     );
 }

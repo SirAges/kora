@@ -35,7 +35,7 @@ const AvailableCard = ({ item, days }) => {
                     </View>
                     <View className="w-full flex-row space-x-2">
                         <Image
-                            className="h-full w-1/2 rounded-md"
+                            className="h-24 w-1/2 rounded-md"
                             source={item.featured_image.secure_url}
                         />
 

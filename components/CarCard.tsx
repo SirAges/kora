@@ -7,15 +7,16 @@ import { truncate } from "@/lib/utils";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 const CarCard = ({ item, style }) => {
-    const backgroundColor = useThemeColor({}, "card");
+    const card = useThemeColor({}, "card");
+
     const onPressCard = () => {
-        router.navigate(`/${item._id}`);
+        router.navigate(`cars/${item._id}`);
     };
     return (
         <TouchableWithoutFeedback onPress={onPressCard}>
-            <ThemedView className="w-44 px-1 py-1">
+            <View className="w-44 px-1 py-1">
                 <View
-                    style={{ backgroundColor: backgroundColor }}
+                    style={{ backgroundColor: card }}
                     className="items-center relative rounded-md"
                 >
                     <Image
@@ -34,7 +35,7 @@ const CarCard = ({ item, style }) => {
                         </ThemedText>
                     </View>
                 </View>
-            </ThemedView>
+            </View>
         </TouchableWithoutFeedback>
     );
 };

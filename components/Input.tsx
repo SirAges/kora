@@ -18,7 +18,7 @@ const Input = forwardRef<TextInput, InputProps>(
         return (
             <TextInput
                 ref={ref}
-                className=""
+            
                 style={[
                     {
                         color: textColor,

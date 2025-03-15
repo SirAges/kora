@@ -13,7 +13,7 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { selectCurrentBooking, addToBooking } from "@/redux/globalSlice";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import ProviderDetails from "@/components/ProviderDetails";
+import ProviderInfo from "@/components/ProviderInfo";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ThemedText from "@/components/ThemedText";
@@ -26,12 +26,12 @@ const SelectModal = ({ data, selected, field, children }) => {
     const iconColor = useThemeColor({}, "icon");
     const card = useThemeColor({}, "card");
     const color = useThemeColor({}, "text");
-
+    if (!data) return null;
     const modal_tilte = field.replace("_", " ");
     return (
         <>
             <TouchableOpacity
-                style={{ backgroundColor }}
+          
                 onPress={() => setShowModal(true)}
                 className="flex-row items-center border-b border-gray-100 space-x-2 justify-between"
             >
@@ -91,7 +91,7 @@ const RenderSelected = ({
 }) => {
     const item = data.find(({ slug }) => slug === selected);
     if (field === "driver") {
-        return <ProviderDetails user_id={selected} onPress={undefined} />;
+        return <ProviderInfo user_id={selected} onPress={undefined} />;
     }
 
     return (
@@ -125,9 +125,11 @@ const RenderItem = ({
 }) => {
     // console.log("item", item);
     const dispatch = useDispatch();
-    const { slug, name, description, image } = item;
+    const { slug, name, description, image, percentage } = item;
     const onPress = () => {
-        dispatch(addToBooking({ [field]: slug || item }));
+        const value =
+            field === "promo_code" ? { slug, percentage } : slug || item;
+        dispatch(addToBooking({ [field]: value }));
         setShowModal(false);
     };
 
@@ -177,7 +179,7 @@ const RenderItem = ({
                 </TouchableOpacity>
             );
         case "driver":
-            return <ProviderDetails user_id={item} onPress={onPress} />;
+            return <ProviderInfo user_id={item} onPress={onPress} />;
         default:
             return null;
     }

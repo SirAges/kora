@@ -39,7 +39,7 @@ export const authSchema = z.object({
 
 export type AuthSchemaType = z.infer<typeof authSchema>;
 
-export const fileSchema = z.object({
+export const FileSchema = z.object({
     mimeType: z.string(),
     name: z.string(),
     size: z.coerce.number().int().nonnegative(),
@@ -48,38 +48,36 @@ export const fileSchema = z.object({
 
 // ** Base Schema (Fields required for all users) **
 const baseUserSchema = z.object({
-    profile_image: fileSchema,
-    last_name: z.string().min(1, "Full name is required").trim(),
-    first_name: z.string().min(1, "Full name is required").trim(),
     phone: z.string().min(10, "Phone number is required"),
     country: z.string().min(1, "Country is required"),
-    state: z.string().min(1, "State is required"),
-    address: z.string().min(1, "Address is required"),
-
-    account_name: z.string().min(1, "Account name is required"),
-    account_number: z.string().min(1, "Account number is required"),
-    account_bank: z.string().min(1, "Bank name is required")
+    state: z.string().min(1, "State is required")
 });
 
 // ** Company Renter Schema (Extra fields) **
 const companyRenterSchema = baseUserSchema.extend({
     user_type: z.literal("company"),
     company_name: z.string().min(1, "Company name is required"),
-    company_logo: fileSchema.optional(),
-    company_license: fileSchema,
-    company_registration_number: fileSchema,
+    company_logo: FileSchema.optional(),
+    company_license: FileSchema,
+    company_registration_number: z
+        .string()
+        .min(1, "Business address is required"),
     company_address: z.string().min(1, "Business address is required")
 });
 
 // ** Driver Schema (Extra fields) **
 const driverSchema = baseUserSchema.extend({
     user_type: z.literal("driver"),
-    license: fileSchema,
-    experience: z.string().min(1, "Experience years is required"),
-    hourly_rate: z.string().min(0, "Hourly rate is required"),
-    km_rate: z.string().min(0, "Km rate is required"),
+    profile_image: FileSchema,
+    last_name: z.string().min(1, "Full name is required").trim(),
+    first_name: z.string().min(1, "Full name is required").trim(),
+    license: FileSchema,
+    experience: z.coerce.number().min(1, "Experience years is required"),
+    hourly_rate: z.coerce.number().min(0, "Hourly rate is required"),
+    km_rate: z.coerce.number().min(0, "Km rate is required"),
+    description: z.string().min(5, "let us know you briefly").max(200),
     car_types: z.array(z.string()).min(1, "At least one car type is required"),
-
+ address: z.string().min(1, "Address is required"),
     emergency_name: z.string().min(1, "Emergency contact name is required"),
     emergency_phone: z.string().min(10, "Emergency contact phone is required"),
     emergency_relationship: z.string().min(1, "Relationship is required")
@@ -87,14 +85,25 @@ const driverSchema = baseUserSchema.extend({
 
 // ** Personal Renter Schema (Car Owner)**
 const personalRenterSchema = baseUserSchema.extend({
-    user_type: z.literal("car_owner")
+    user_type: z.literal("car_owner"),
+    profile_image: FileSchema,
+    last_name: z.string().min(1, "Full name is required").trim(),
+    first_name: z.string().min(1, "Full name is required").trim(), address: z.string().min(1, "Address is required")
+});
+
+const renterSchema = baseUserSchema.extend({
+    user_type: z.literal("renter"),
+    profile_image: FileSchema,
+    last_name: z.string().min(1, "Full name is required").trim(),
+    first_name: z.string().min(1, "Full name is required").trim(), address: z.string().min(1, "Address is required")
 });
 
 // ** Dynamic Schema Based on User Type **
 export const onboardingSchema = z.discriminatedUnion("user_type", [
     personalRenterSchema,
     companyRenterSchema,
-    driverSchema
+    driverSchema,
+    renterSchema
 ]);
 
 export type OnboardingSchemaType = z.infer<typeof onboardingSchema>;
@@ -102,76 +111,26 @@ export type OnboardingSchemaType = z.infer<typeof onboardingSchema>;
 export const locationSchema = z.object({
     pickup_location: z.object({
         display_name: z.string({ message: "display name is required" }),
-        lat: z.number({ message: "latitude is required" }),
-        lng: z.number({ message: "longitude is required" })
+        lat: z.coerce.number({ message: "latitude is required" }),
+        lng: z.coerce.number({ message: "longitude is required" })
     }),
     dropoff_location: z.object({
         display_name: z.string({ message: "display name is required" }),
-        lat: z.number({ message: "latitude is required" }),
-        lng: z.number({ message: "longitude is required" })
+        lat: z.coerce.number({ message: "latitude is required" }),
+        lng: z.coerce.number({ message: "longitude is required" })
     }),
     startDate: z.string({ message: "start date is required" }),
     endDate: z.string({ message: "end date is required" })
 });
 export type LocationSchemaType = z.infer<typeof locationSchema>;
 
-// ** File Schema **
-const FileSchema = z.object({
-    secure_url: z.string().url({ message: "Document URL is required" }),
-    format: z.literal("application/pdf"),
-    size: z.coerce.number().min(0, { message: "File size cannot be negative" }),
-    public_id: z.string().min(1, { message: "Document public ID is required" })
-});
+const booleanKeys = ["include_in_price"]; // Define boolean fields
 
-// ** Insurance Schema **
-const InsuranceSchema = z.object({
-    type: z.enum(INSURANCE_TYPES),
-    price_per_day: z.coerce
-        .number()
-        .min(0, { message: "Price per day cannot be negative" })
-});
-
-// ** Extra Services Schema **
-const ExtraSchema = z.object({
-    name: z.string().min(1, { message: "Extra name is required" }),
-    extra: z.coerce
-        .number()
-        .min(0, { message: "Extra cost cannot be negative" }),
-    description: z.string().min(1, { message: "Description is required" })
-});
-
-// ** Mileage Policy Schema **
-const MileagePolicySchema = z.object({
-    type: z.enum(MILEAGE_TYPES),
-    daily_limit: z.coerce.number().min(0).optional(),
-    extra_mile_charge: z.coerce.number().min(0).optional(),
-    description: z.string().optional()
-});
-
-// ** Fuel Policy Schema **
-const FuelPolicySchema = z.object({
-    type: z.enum(FUEL_POLICIES),
-    prepaid_cost: z.coerce.number().min(0).optional(),
-    no_refund: z.boolean().optional(),
-    service_fee: z.coerce.number().min(0).optional(),
-    fuel_price_per_liter: z.coerce.number().min(0).optional(),
-    included_in_price: z.boolean().optional(),
-    minimum_return_charge: z.coerce.number().min(0).optional(),
-    charging_fee: z.coerce.number().min(0).optional(),
-    penalty_fee: z.coerce.number().min(0).optional()
-});
-
-// ** Confirmation Policy Schema **
-const ConfirmationPolicySchema = z.object({
-    type: z.enum(CONFIRMATION_POLICIES),
-    security_deposit: z.coerce.number().min(0).optional()
-});
-
-// ** Cancellation Policy Schema **
-const CancellationPolicySchema = z.object({
-    type: z.enum(CANCELLATION_POLICIES),
-    refund_percentage: z.coerce.number().min(0).optional()
-});
+// Define a reusable policy schema
+const PolicySchema = z.record(
+    z.string(),
+    z.record(z.string(), z.union([z.boolean(), z.coerce.number(), z.string()]))
+);
 
 // ** Car Schema **
 export const carSchema = z.object({
@@ -185,6 +144,12 @@ export const carSchema = z.object({
         }),
     car_type: z.enum(CAR_TYPES),
     fuel_type: z.enum(FUEL_TYPES),
+
+    location: z.object({
+        display_name: z.string({ message: "display name is required" }),
+        lat: z.coerce.number({ message: "latitude is required" }),
+        lng: z.coerce.number({ message: "longitude is required" })
+    }),
     transmission: z.enum(TRANSMISSIONS),
     mileage: z.coerce
         .number()
@@ -198,17 +163,15 @@ export const carSchema = z.object({
         .number()
         .min(0, { message: "Price per day cannot be negative" }),
 
-    insurance: z.array(InsuranceSchema).optional(),
-    mileage_policy: MileagePolicySchema.optional(),
-    fuel_policy: z.array(FuelPolicySchema).optional(),
-    confirmation_policy: z.array(ConfirmationPolicySchema).optional(),
-    cancellation_policy: z.array(CancellationPolicySchema).optional(),
+    insurance_policy: PolicySchema.optional(),
+    mileage_policy: PolicySchema.optional(),
+    fuel_policy: PolicySchema.optional(),
+    confirmation_policy: PolicySchema.optional(),
+    cancellation_policy: PolicySchema.optional(),
     registration_document: FileSchema,
     insurance_document: FileSchema,
     inspection_document: FileSchema,
-    extra_services: z.array(ExtraSchema).optional(),
-    drivers: z.array(z.string()).optional(),
-    pending_drivers: z.array(z.string()).optional()
+    extra_services: z.string().optional()
 });
 
 export type CarSchemaType = z.infer<typeof carSchema>;

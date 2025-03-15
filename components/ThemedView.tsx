@@ -15,8 +15,14 @@ export default ThemedView = ({
 }: ThemedViewProps) => {
     const backgroundColor = useThemeColor(
         { light: lightColor, dark: darkColor },
-        "background"
+        "card"
     );
 
-    return <View style={[{ backgroundColor }, style]} {...otherProps} />;
+    return (
+        <View
+            className=""
+            style={[{ backgroundColor }, style]}
+            {...otherProps}
+        />
+    );
 };

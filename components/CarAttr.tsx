@@ -7,7 +7,9 @@ const CarAttr = ({ icon, name, data }) => {
     return (
         <View className="flex-row items-center px-2 py-1">
             <MaterialCommunityIcons name={icon} size={16} color={iconColor} />
-            <ThemedText className="capitalize">{data}</ThemedText>
+            <ThemedText  className="capitalize">
+                {data}
+            </ThemedText>
         </View>
     );
 };

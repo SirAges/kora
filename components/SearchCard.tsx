@@ -40,6 +40,7 @@ const SearchCard = ({ action }) => {
         setDateDifference(calculateDateDifference(startDate, endDate));
     }, [startDate, endDate]);
     const onSubmit = (data: LocationSchemaType) => {
+       
         dispatch(
             addToBooking({
                 ...data,
@@ -54,7 +55,7 @@ const SearchCard = ({ action }) => {
     };
     return (
         <ThemedCard
-            color="background"
+            color="card"
             className="px-2  
 py-3"
         >

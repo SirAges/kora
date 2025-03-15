@@ -49,10 +49,12 @@ export enum ModalOptions {
     RATE = "rate"
 }
 const Index = () => {
-    const { userId } = useAuth();
+    const { userId, user_type } = useAuth();
     const { data, error } = useGetUserQuery(userId);
+
     const [signout, { isLoading }] = useSignoutMutation();
     const color = useThemeColor({}, "text");
+    const borderColor = useThemeColor({}, "border");
     const iconColor = useThemeColor({}, "icon");
     const primary = useThemeColor({}, "primary");
     const [showModal, setShowModal] = useState(false);
@@ -74,6 +76,14 @@ const Index = () => {
             />
         );
     const user = data?.data;
+    const imageUri =
+        user_type === "company"
+            ? user.company_logo.secure_url
+            : user.profile_image.secure_url;
+    const name =
+        user_type === "company"
+            ? user.company_name
+            : `${user.last_name} ${user.first_name}`;
     return (
         <>
             <SafeAreaView
@@ -102,19 +112,19 @@ const Index = () => {
                 </View>
 
                 <TouchableOpacity onPress={() => onPressOption("PROFILE")}>
-                    <ThemedView
+                    <View
+                        style={{ borderColor }}
                         className="flex-row items-center justify-between
-            relative w-full px-2 py-4 rounded-md space-x-2 border
-            border-gray-200"
+            relative w-full px-2 py-4 rounded-md space-x-2 border"
                     >
                         <Image
                             className="w-9 h-9 rounded-full"
-                            source={{ uri: user?.profile_image?.secure_url }}
+                            source={{ uri: imageUri }}
                             alt="profile image"
                         />
                         <View className="flex-1">
                             <ThemedText type="semibold" className="capitalize">
-                                {`${user?.last_name} ${user?.first_name}`}
+                                {name}
                             </ThemedText>
                             <ThemedText type="subtitle" className="lowercase">
                                 {user?.email}
@@ -125,13 +135,11 @@ const Index = () => {
                             size={24}
                             color={iconColor}
                         />
-                    </ThemedView>
+                    </View>
                 </TouchableOpacity>
 
                 <ScrollView>
-                    {["car_owner", "driver", "company"].includes(
-                        user.user_type
-                    ) && (
+                    {["car_owner", "company"].includes(user.user_type) && (
                         <View>
                             <ThemedButton
                                 onPress={() => router.navigate("list-car")}
@@ -140,8 +148,8 @@ const Index = () => {
                         </View>
                     )}
                     <View
-                        className="rounded-md px-2 py-2 border
-                border-gray-200"
+                        style={{ borderColor }}
+                        className="rounded-md px-2 py-2 border"
                     >
                         <Option
                             onPress={() => onPressOption("PREFERENCE")}

@@ -16,6 +16,18 @@ export const userApiSlice = apiSlice.injectEndpoints({
                 { type: "USERS", id: user_id }
             ]
         }),
+        getDrivers: builder.query({
+            query: () => ({
+                url: "/drivers"
+            }),
+            providesTags: ["USERS"]
+        }),
+        getDriver: builder.query({
+            query: driver_id => ({
+                url: `/drivers/${driver_id}`
+            }),
+            providesTags: ["USERS"]
+        }),
         verify2Fa: builder.mutation({
             query: ({ user_id, value }) => ({
                 url: `/users/${user_id}/verify2fa`,
@@ -47,7 +59,6 @@ export const userApiSlice = apiSlice.injectEndpoints({
                     const { data } = await queryFulfilled;
 
                     if (data) {
-                        
                         dispatch(setDarkMode(data.data.setting.darkmode));
                     }
                 } catch (err) {}
@@ -129,6 +140,8 @@ export const userApiSlice = apiSlice.injectEndpoints({
 export const {
     useGetUsersQuery,
     useGetUserQuery,
+    useGetDriversQuery,
+    useGetDriverQuery,
     useUpdateUserMutation,
     useDeleteUserMutation,
     useGetStatsQuery,

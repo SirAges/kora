@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     View,
     Text,
@@ -8,7 +8,8 @@ import {
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { addToBooking, selectCurrentBooking } from "@/redux/globalSlice";
-import { formatDateTime } from "@/lib/utils";
+import { formatDateTime, calculateDateDifference } from "@/lib/utils";
+import DatePicker from "@/components/DatePicker";
 import DateDifferenceSvg from "@/assets/svgs/difference";
 import CustomFormField, { FormFieldType } from "@/components/CustomFormField";
 import { useThemeColor } from "@/hooks/useThemeColor";
@@ -21,6 +22,7 @@ const LocationDetails = ({ pickup_options, dropoff_options }) => {
     const dispatch = useDispatch();
     const [modalVisible, setModalVisible] = useState(false);
     const [options, setOptions] = useState(null);
+    const [dateDifference, setDateDifference] = useState("");
     const { startDate, endDate, days, dropoff_location, pickup_location } =
         useSelector(selectCurrentBooking);
 
@@ -32,6 +34,12 @@ const LocationDetails = ({ pickup_options, dropoff_options }) => {
     const textColor = useThemeColor({}, "text");
     const primary = useThemeColor({}, "primary");
     const backgroundColor = useThemeColor({}, "card");
+    useEffect(() => {
+        setDateDifference(calculateDateDifference(startDate, endDate));
+        dispatch(
+            addToBooking({ days: calculateDateDifference(startDate, endDate) })
+        );
+    }, [startDate, endDate]);
     const RenderDate = ({ date }) => {
         if (!date) return null;
 
@@ -84,13 +92,18 @@ const LocationDetails = ({ pickup_options, dropoff_options }) => {
     return (
         <View className="">
             <View className="flex-row items-center justify-between px-2 py-2">
-                <RenderDate date={startDate} />
-                <View className="items-center">
-                    <ThemedText type="primary">{days}</ThemedText>
-                    <DateDifferenceSvg />
-                </View>
-                <RenderDate date={endDate} />
+                <DatePicker title="Pickup date" isStart={true} />
+
+                {startDate && endDate && (
+                    <View className="items-center">
+                        <ThemedText type="primary">{days}</ThemedText>
+                        <DateDifferenceSvg />
+                    </View>
+                )}
+
+                <DatePicker title="Dropoff date" isStart={false} />
             </View>
+
             <RenderLocation place={pickup_location} type={"pickup_location"} />
             <RenderLocation
                 place={dropoff_location}

@@ -5,17 +5,21 @@ import ReviewInfo from "@/components/ReviewInfo";
 import { Image } from "expo-image";
 import { users } from "@/lib/data";
 import { useThemeColor } from "@/hooks/useThemeColor";
-
+import { useGetUserQuery } from "@/redux/user/userApiSlice";
 const ProviderDetails = ({ user_id, onPress }) => {
     const [provider, setProvider] = useState(null);
+    const { data, isFetching, error } = useGetUserQuery(user_id);
     const backgroundColor = useThemeColor({}, "background");
     const color = useThemeColor({}, "primary");
     console.log("backgroundColor", backgroundColor);
-    useEffect(() => {
-        const found = users.find(user => user._id === user_id);
-        setProvider(found);
+        useEffect(() => {
+        if (data && data !== undefined) {
+            setProvider(data.data);
+        }
+
         return () => {};
     }, [user_id]);
+
 
     return (
         provider && (
@@ -45,12 +49,7 @@ const ProviderDetails = ({ user_id, onPress }) => {
                         )}
                     </View>
                 </View>
-                <View>
-                    <ReviewInfo
-                        rating={provider.rating}
-                        count={provider.review_count}
-                    />
-                </View>
+               
             </TouchableOpacity>
         )
     );

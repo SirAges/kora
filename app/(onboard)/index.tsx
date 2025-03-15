@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, ScrollView, Dimensions, Image, Text } from "react-native";
+import { View, ScrollView, Dimensions, Image, Text, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,7 +13,6 @@ import { Link } from "expo-router";
 import * as FileSystem from "expo-file-system";
 
 import ScreenLoader from "@/components/ScreenLoader";
-import Alert from "@/components/Alert";
 import ThemedView from "@/components/ThemedView";
 import ThemedText from "@/components/ThemedText";
 import ThemedButton from "@/components/ThemedButton";
@@ -26,19 +25,22 @@ import { setCredentials } from "@/redux/auth/authSlice";
 // Schema & Hooks
 import { onboardingSchema, OnboardingSchemaType } from "@/lib/schema";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { CAR_TYPES } from "@/constants/enums";
 import { onboardingMetaData } from "@/lib/data";
+import { convertToBase64 } from "@/lib/utils";
 import countries from "@/lib/countries";
 import { useUpdateUserMutation } from "@/redux/user/userApiSlice";
 import { useLocalSearchParams } from "expo-router";
 const Index = () => {
-    const [updateUser, { data, isLoading }] = useUpdateUserMutation();
+    const [updateUser, { data, error, isLoading }] = useUpdateUserMutation();
     const [page, setPage] = useState(0);
     const { user_type, userId } = useAuth();
     const dispatch = useDispatch();
+    const isRenter = user_type === "renter";
     const isCarOwner = user_type === "car_owner";
     const isDriver = user_type === "driver";
     const isCompany = user_type === "company";
-    const length = isCarOwner ? 2 : 3;
+    const length = isRenter ? 1 : isCarOwner ? 1 : 2;
     const { title, description } = onboardingMetaData[user_type] || {
         title: "Welcome to Our Car Rental Platform",
         description:
@@ -62,70 +64,31 @@ const Index = () => {
         watch,
         formState: { errors }
     } = method;
-
-    const convertToBase64 = async (file: any) => {
-        if (!file) {
-            return null;
-        }
-
-        const readBase64 = async ({
-            uri,
-            mimeType
-        }: {
-            uri: string;
-            mimeType?: string;
-        }) => {
-            const base64 = await FileSystem.readAsStringAsync(uri, {
-                encoding: FileSystem.EncodingType.Base64
-            });
-
-            return `data:${mimeType || "image/jpeg"};base64,${base64}`;
-        };
-
-        if (Array.isArray(file)) {
-            return Promise.all(file.map(readBase64));
-        }
-
-        return readBase64(file);
-    };
-
+    console.log("error", errors, data, error);
     const onSubmit = async (values: OnboardingSchemaType) => {
         try {
             const {
                 license,
                 profile_image,
                 company_logo,
-                account_number,
-                account_name,
-                account_bank,
                 emergency_name,
                 emergency_phone,
                 emergency_relationship,
-                experience,
-                hourly_rate,
-                km_rate,
-                user_type,
+                user_type,company_license,
                 ...others
             } = values;
 
             const transformedData = {
-                account_details: {
-                    account_number: Number(account_number),
-                    account_bank: account_bank,
-                    account_name: account_name
-                },
                 emergency_contact: {
                     name: emergency_name,
                     phone: emergency_phone,
                     relationship: emergency_relationship
                 },
-                experience: Number(experience),
-                hourly_rate: Number(hourly_rate),
-                km_rate: Number(km_rate),
                 license: await convertToBase64(license),
                 onboarded: true,
                 profile_image: await convertToBase64(profile_image),
                 company_logo: await convertToBase64(company_logo),
+                company_license: await convertToBase64(company_license),
                 ...others
             };
 
@@ -135,7 +98,7 @@ const Index = () => {
             });
 
             if (data?.success) {
-              console.log(data)
+                console.log(data);
                 dispatch(setCredentials(null));
             }
             if (error) {
@@ -146,7 +109,20 @@ const Index = () => {
             console.error("Error updating user:", error);
         }
     };
+
     const { id_card } = watch();
+    const onPressButton = () => {
+        if (isCompany || isCarOwner || isDriver) {
+            if (length - 1 === page) {
+                handleSubmit(onSubmit)(); // Execute handleSubmit
+            } else {
+                setPage(prev => (prev < length - 1 ? prev + 1 : length - 1));
+            }
+        } else {
+            handleSubmit(onSubmit)();
+        }
+    };
+
     return (
         <SafeAreaView style={{ backgroundColor }} className="h-full px-2 py-2">
             <GoBack />
@@ -200,54 +176,47 @@ const Index = () => {
                             inputMode="numeric"
                             placeholder="566 677 8765"
                         />
-                        <View className="flex-row flex-1">
-                            <CustomFormField
-                                fieldType={FormFieldType.SELECT}
-                                control={control}
-                                options={[
-                                    { label: "NIN", value: "nin" },
-                                    { label: "BVN", value: "bvn" }
-                                ]}
-                                name="id_card"
-                                label="choose id"
-                                placeholder="bvn"
-                                leftIconName="card"
-                                position="bottom"
-                            />
-                            {id_card && (
-                                <CustomFormField
-                                    fieldType={FormFieldType.INPUT}
-                                    inputMode="numeric"
-                                    control={control}
-                                    name="card_number"
-                                    label={id_card}
-                                    placeholder="234456667"
-                                />
-                            )}
-                        </View>
-                        <View className="flex-row flex-1">
-                            <CustomFormField
-                                className="flex-1"
-                                fieldType={FormFieldType.SELECT}
-                                control={control}
-                                options={countries.map(({ name, flag }) => ({
-                                    value: name,
-                                    label: `${flag} ${name}`
-                                }))}
-                                name="country"
-                                label="country"
-                                placeholder="nigeria"
-                                position="top"
-                            />
-                            <CustomFormField
-                                fieldType={FormFieldType.INPUT}
-                                control={control}
-                                name="state"
-                                label="state"
-                                placeholder="abuja"
-                                leftIconName="map"
-                            />
-                        </View>
+                        <CustomFormField
+                            fieldType={FormFieldType.SELECT}
+                            control={control}
+                            options={[
+                                { label: "NIN", value: "nin" },
+                                { label: "BVN", value: "bvn" }
+                            ]}
+                            name="id_card"
+                            label="id card"
+                            placeholder="id card"
+                            position="bottom"
+                        />
+                        <CustomFormField
+                            fieldType={FormFieldType.INPUT}
+                            inputMode="numeric"
+                            control={control}
+                            name="card_number"
+                            label={id_card}
+                            placeholder="234456667"
+                        />
+
+                        <CustomFormField
+                            fieldType={FormFieldType.SELECT}
+                            control={control}
+                            options={countries.map(({ name, flag }) => ({
+                                value: name,
+                                label: `${flag} ${name}`
+                            }))}
+                            name="country"
+                            label="country"
+                            placeholder="nigeria"
+                            position="top"
+                        />
+                        <CustomFormField
+                            fieldType={FormFieldType.INPUT}
+                            control={control}
+                            name="state"
+                            label="state"
+                            placeholder="abuja"
+                            leftIconName="map"
+                        />
                         <CustomFormField
                             fieldType={FormFieldType.INPUT}
                             control={control}
@@ -268,7 +237,10 @@ const Index = () => {
                                 >
                                     Professional Info
                                 </ThemedText>
-                                <View className="flex-row items-center">
+                                <View
+                                    className="flex-row items-center
+                                justify-between space-x-2"
+                                >
                                     <CustomFormField
                                         fieldType={FormFieldType.INPUT}
                                         control={control}
@@ -306,20 +278,18 @@ const Index = () => {
                                     multiple={true}
                                     leftIconName="car-sport"
                                     label="car type"
-                                    options={[
-                                        "sedan",
-                                        "SUV",
-                                        "convertible",
-                                        "pickup",
-                                        "hatchback",
-                                        "coupe",
-                                        "van",
-                                        "wagon"
-                                    ].map(c => ({
+                                    options={CAR_TYPES.map(c => ({
                                         label: c,
                                         value: c.toLowerCase()
                                     }))}
                                     name="car_types"
+                                />
+                                <CustomFormField
+                                    fieldType={FormFieldType.TEXTAREA}
+                                    control={control}
+                                    label="About you"
+                                    placeholder="about you"
+                                    name="description"
                                 />
                                 <ThemedText type="title" className="py-2">
                                     Emergency contact
@@ -387,7 +357,6 @@ const Index = () => {
                                     leftIconName="registered-trademark"
                                     name="company_registration_number"
                                 />
-
                                 <CustomFormField
                                     fieldType={FormFieldType.INPUT}
                                     control={control}
@@ -405,79 +374,8 @@ const Index = () => {
                                     name="company_license"
                                 />
                             </View>
-                        ) : isCarOwner ? (
-                            <View>
-                                <ThemedText
-                                    type="title"
-                                    className="capitalize flex-1"
-                                >
-                                    Account Details
-                                </ThemedText>
-                                <CustomFormField
-                                    fieldType={FormFieldType.INPUT}
-                                    control={control}
-                                    label="account name"
-                                    placeholder="John Joe"
-                                    leftIconName="person"
-                                    name="account_name"
-                                />
-                                <CustomFormField
-                                    fieldType={FormFieldType.INPUT}
-                                    control={control}
-                                    label="account number"
-                                    inputMode="numeric"
-                                    placeholder="1234567890"
-                                    LeftIcon="MaterialCommunityIcons"
-                                    leftIconName="transfer"
-                                    name="account_number"
-                                />
-                                <CustomFormField
-                                    fieldType={FormFieldType.INPUT}
-                                    control={control}
-                                    label="bank name"
-                                    placeholder="Zenith"
-                                    LeftIcon="MaterialCommunityIcons"
-                                    leftIconName="bank"
-                                    name="account_bank"
-                                />
-                            </View>
                         ) : null}
                     </>
-                )}
-
-                {page === 2 && (
-                    <View>
-                        <ThemedText type="title" className="capitalize flex-1">
-                            Account Details
-                        </ThemedText>{" "}
-                        <CustomFormField
-                            fieldType={FormFieldType.INPUT}
-                            control={control}
-                            label="account name"
-                            placeholder="John Joe"
-                            leftIconName="person"
-                            name="account_name"
-                        />
-                        <CustomFormField
-                            fieldType={FormFieldType.INPUT}
-                            control={control}
-                            inputMode="numeric"
-                            label="account number"
-                            placeholder="1234567890"
-                            LeftIcon="MaterialCommunityIcons"
-                            leftIconName="transfer"
-                            name="account_number"
-                        />
-                        <CustomFormField
-                            fieldType={FormFieldType.INPUT}
-                            control={control}
-                            label="bank name"
-                            placeholder="Zenith"
-                            LeftIcon="MaterialCommunityIcons"
-                            leftIconName="bank"
-                            name="account_bank"
-                        />
-                    </View>
                 )}
             </ScrollView>
             {/* Submit Button */}
@@ -494,12 +392,10 @@ const Index = () => {
                 <ThemedButton
                     title={page === length - 1 ? "Submit" : "continue"}
                     onPress={
-                        page === length - 1
-                            ? handleSubmit(onSubmit)
-                            : () =>
-                                  setPage(prev =>
-                                      prev < length - 1 ? prev + 1 : length - 1
-                                  )
+                        (isCompany || isCarOwner || isDriver) &&
+                        page < length - 1
+                            ? () => setPage(prev => prev + 1)
+                            : handleSubmit(onSubmit)
                     }
                 />
             </View>

@@ -60,7 +60,10 @@ const SignUp: React.FC = () => {
             const { data, error } = await signup(value);
             if (error) {
                 console.log("error", error);
-                toastMessage(error?.data?.message, "error");
+                toastMessage(
+                    data?.success ? "Successful" : "An error occurred",
+                    error ? error?.data?.message || error.error : data?.message
+                );
                 return;
             }
             if (data.success) {

@@ -18,7 +18,7 @@ const TextArea = forwardRef<TextInput, InputProps>(
 
         return (
             <TextInput
-                className="h-44 w-full"
+                className="h-full w-full"
                 ref={ref}
                 style={[{ color: textColor, textAlignVertical: "top" }, style]}
                 placeholderTextColor={placeholderColor}

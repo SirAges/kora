@@ -16,10 +16,10 @@ export const Colors = {
         ghost: "#aedaf8",
         filled: "#1BA7FF",
         field: "#f8f8f8",
-        background: "#ffffff",
+        background: "#f3f4f6",
         placeholder: "#023d62a1",
         border: "#1BA7FF",
-        card: "#f2f2f2",
+        card: "#ffffff",
         icon: "#1BA7FF",
         tabIconDefault: "#687076",
         tabIconSelected: tintColorLight

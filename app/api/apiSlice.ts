@@ -34,8 +34,8 @@ const baseQuery: BaseQueryFn = async (args, api, extraOptions) => {
     // Add custom query params for child settings
     const setting = state?.setting;
     const isChild = setting?.child;
-    const queryParams = new URLSearchParams({ child: String(isChild) });
-    
+    const queryParams = new URLSearchParams({});
+
     const urlWithParams = (args?.url || args).includes("?")
         ? `${args.url}&${queryParams}`
         : `${args.url}?${queryParams}`;
@@ -78,7 +78,7 @@ const baseQuery: BaseQueryFn = async (args, api, extraOptions) => {
 export const apiSlice = createApi({
     reducerPath: "api",
     baseQuery,
-    tagTypes: ["USERS"],
+    tagTypes: ["USERS", "REVIEWS", "CARS", "BOOKINGS"],
     endpoints: builder => ({}),
     extractRehydrationInfo(action, { reducerPath }) {
         if (isHydrateAction(action)) {

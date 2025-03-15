@@ -3,7 +3,7 @@ import { apiSlice } from "@/app/api/apiSlice";
 const carApiSlice = apiSlice.injectEndpoints({
     endpoints: builder => ({
         getCars: builder.query({
-            query: () => "/cars/",
+            query: (params) => ({ url: "/cars",params }),
             providesTags: ["CARS"]
         }),
         getUserCars: builder.query({
@@ -13,15 +13,15 @@ const carApiSlice = apiSlice.injectEndpoints({
             ]
         }),
         createCar: builder.mutation({
-            query: body => ({
-                url: "/cars/",
+            query: value => ({
+                url: "/cars",
                 method: "POST",
-                body
+                body: value
             }),
             invalidatesTags: ["CARS"]
         }),
         getCar: builder.query({
-            query: car_id => `/cars/${car_id}`,
+            query: car_id => ({url:`/cars/${car_id}`,}),
             providesTags: (result, error, car_id) => [
                 { type: "CARS", id: car_id }
             ]
@@ -45,12 +45,12 @@ const carApiSlice = apiSlice.injectEndpoints({
         }),
         getStats: builder.query({
             query: () => "/cars/stats/all",
-            providesTags: ["CAR_STATS"]
+            providesTags: ["CARS"]
         }),
         getUserCarStats: builder.query({
             query: user_id => `/cars/stats/${user_id}/all`,
             providesTags: (result, error, user_id) => [
-                { type: "CAR_STATS", id: user_id }
+                { type: "CARS", id: user_id }
             ]
         })
     })

@@ -1,15 +1,19 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import ThemedDriverd from "@/components/ThemedDriverd";
 import ThemedText from "@/components/ThemedText";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { router } from "expo-router";
+
 import { truncate } from "@/lib/utils";
 import { Image } from "expo-image";
 const DriverCard = ({ item, style }) => {
     const backgroundColor = useThemeColor({}, "card");
-
+    const onPressDriver = () => {
+        router.navigate(`drivers/${item._id}`);
+    };
     return (
-        <ThemedView className="w-44 px-1 py-1">
+        <TouchableOpacity onPress={onPressDriver} className="w-44 px-1 py-1">
             <View
                 style={{ backgroundColor: backgroundColor }}
                 className="items-center relative py-2 rounded-md"
@@ -36,7 +40,7 @@ const DriverCard = ({ item, style }) => {
                     </ThemedText>
                 </View>
             </View>
-        </ThemedView>
+        </TouchableOpacity>
     );
 };
 

@@ -1,4 +1,6 @@
 import Toast from "react-native-toast-message";
+import * as FileSystem from "expo-file-system";
+import moment from "moment";
 import { promoCodes } from "./data";
 export const calculateDateDifference = (start, end) => {
     if (!start || !end) return "";
@@ -94,9 +96,9 @@ export const formatDateTime = (dateString: Date | string) => {
 
 export function formatAmount(amount: number): string {
     if (isNaN(amount)) return null;
-    const formatter = new Intl.NumberFormat("en-US", {
+    const formatter = new Intl.NumberFormat("en-NG", {
         style: "currency",
-        currency: "USD",
+        currency: "NGN",
         minimumFractionDigits: 2
     });
 
@@ -117,5 +119,76 @@ export const toastMessage = (title: string, message: string) => {
         text1: title,
         text2: message,
         type: "toast"
+    });
+};
+
+export const convertToBase64 = async (file: any) => {
+    if (!file) {
+        return null;
+    }
+
+    const readBase64 = async ({
+        uri,
+        mimeType
+    }: {
+        uri: string;
+        mimeType?: string;
+    }) => {
+        const base64 = await FileSystem.readAsStringAsync(uri, {
+            encoding: FileSystem.EncodingType.Base64
+        });
+
+        return `data:${mimeType || "image/jpeg"};base64,${base64}`;
+    };
+
+    if (Array.isArray(file)) {
+        return Promise.all(file.map(readBase64));
+    }
+
+    return readBase64(file);
+};
+
+const isWeekend = () => {
+    const day = new Date().getDay();
+    return day === 5 || day === 6 || day === 0; // Friday, Saturday, Sunday
+};
+
+const isFestiveSeason = () => {
+    const month = new Date().getMonth() + 1; // Get month (1 - 12)
+    const day = new Date().getDate();
+    return (month === 12 && day >= 20) || (month === 1 && day <= 5); // Example: Christmas to New Year
+};
+
+export const filterPromoCodes = user => {
+    const currentHour = new Date().getHours();
+
+    return promoCodes.filter(promo => {
+        switch (promo.slug) {
+            case "night-ride-savings":
+                return currentHour >= 0 && currentHour <= 5;
+
+            case "first-ride-free":
+                if (user?.createdAt) {
+                    const isNewUser =
+                        moment().diff(moment(user.createdAt), "days") <= 7;
+                    return isNewUser;
+                }
+                return false;
+
+            case "weekend-getaway":
+                return isWeekend();
+
+            case "loyalty-reward":
+                return user?.rideCount >= 5;
+
+            case "holiday-special":
+                return isFestiveSeason();
+
+            case "corporate-booking-offer":
+                return user?.accountType === "business";
+
+            default:
+                return true; // Keep all other promos
+        }
     });
 };

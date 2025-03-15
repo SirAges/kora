@@ -1,7 +1,8 @@
 import SearchCard from "@/components/SearchCard";
 import AvailableCard from "@/components/AvailableCard";
 import FilterCard from "@/components/FilterCard";
-import React, { useState } from "react";
+import { CAR_TYPES } from "@/constants/enums";
+import React, { useState, useEffect } from "react";
 import {
     View,
     Text,
@@ -12,6 +13,8 @@ import {
 import ThemedCard from "@/components/ThemedCard";
 import ThemedText from "@/components/ThemedText";
 import ThemedView from "@/components/ThemedView";
+import ScreenLoader from "@/components/ScreenLoader";
+
 import ThemedModal from "@/components/ThemedModal";
 import GoBack from "@/components/GoBack";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -19,25 +22,46 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { truncate, formatDateTime } from "@/lib/utils";
 import { Image } from "expo-image";
-import { cars } from "@/lib/data";
 import { useLocalSearchParams } from "expo-router";
 import { useSelector, useDispatch } from "react-redux";
 import { selectCurrentBooking, addToBooking } from "@/redux/globalSlice";
+import { useGetCarsQuery } from "@/redux/car/carApiSlice";
 const CarAvailable = () => {
     const dispatch = useDispatch();
-    
-
+    const {
+        withDriver,
+        startDate,
+        endDate,
+        days,
+        dropoff_location,
+        pickup_location
+    } = useSelector(selectCurrentBooking);
     const [showModal, setShowModal] = useState(false);
+    const [cars, setCars] = useState([]);
     const [filter, setFilter] = useState(null);
-    const { withDriver, startDate, endDate, days } =
-        useSelector(selectCurrentBooking);
+    const [params, setParams] = useState(null);
 
+    const { data, isFetching } = useGetCarsQuery({
+        withDriver,
+        startDate,
+        endDate,
+        dropoff_location,
+        pickup_location,
+        ...params
+    });
     const backgroundColor = useThemeColor({}, "background");
     const iconColor = useThemeColor({}, "icon");
     const card = useThemeColor({}, "card");
     const onSearchedOpenPress = () => {
         setShowModal(true);
     };
+    useEffect(() => {
+        if (data && data !== undefined) {
+            setCars(data.data.cars);
+        }
+        return () => {};
+    }, [data]);
+
     return (
         <>
             <SafeAreaView className="flex-1" style={{ backgroundColor }}>
@@ -68,41 +92,40 @@ const CarAvailable = () => {
                     />
                 </View>
                 {filter && (
-                    <ScrollView className="h-20" horizontal>
-                        <View
-                            className="flex-row items-center w-full space-x-2 w-full
-                justify-between px-2 py-2 "
-                        >
-                            {["all", "small", "medium", "large"].map(
-                                (s, index) => (
+                    <View className="h-14">
+                        <ScrollView horizontal>
+                            <View
+                                className="flex-row items-center h-14
+                        justify-between  px-2 space-x-2"
+                            >
+                                {" "}
+                                {CAR_TYPES.map((s, index) => (
                                     <ThemedText
                                         key={`${s}-${index}`}
                                         onPress={() =>
-                                            setFilter(prev => ({
+                                            setParams(prev => ({
                                                 ...prev,
                                                 type: s
                                             }))
                                         }
                                         style={{
                                             color:
-                                                filter.type === s
+                                                params?.type === s
                                                     ? card
                                                     : iconColor,
                                             backgroundColor:
-                                                filter.type === s
+                                                params?.type === s
                                                     ? iconColor
                                                     : card
                                         }}
-                                        className=" whitespace-nowrap text-sm min-w-[100px]
-                            text-center font-semibold rounded-md
-                            px-2 py-2"
+                                        className="rounded py-2 px-2"
                                     >
                                         {s}
                                     </ThemedText>
-                                )
-                            )}
-                        </View>
-                    </ScrollView>
+                                ))}
+                            </View>
+                        </ScrollView>
+                    </View>
                 )}
                 <FlatList
                     data={cars}
@@ -123,8 +146,13 @@ const CarAvailable = () => {
                         </View>
                     </ScrollView>
                 </ThemedModal>
+                {isFetching && <ScreenLoader title="Fetching cars" />}
             </SafeAreaView>
-            <FilterCard filter={filter} setFilter={setFilter} />
+            <FilterCard
+                filter={filter}
+                setFilter={setFilter}
+                setParams={setParams}
+            />
         </>
     );
 };

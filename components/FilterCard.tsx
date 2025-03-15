@@ -1,10 +1,11 @@
-import React, { useState,useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
     View,
     Text,
     StyleSheet,
     TouchableOpacity,
     Dimensions,
+    ScrollView,
     Image,
     Alert
 } from "react-native";
@@ -18,9 +19,28 @@ import ThemedButton from "@/components/ThemedButton";
 import RangeSlider from "@ptomasroos/react-native-multi-slider";
 import { debounce } from "lodash";
 import { formatAmount } from "@/lib/utils";
+import * as Location from "expo-location";
 import { top_providers } from "@/lib/data";
-const FilterCard = ({ filter, setFilter }) => {
+const FilterCard = ({ setParams, filter, setFilter }) => {
     const { width } = Dimensions.get("window");
+
+    const [location, setLocation] = useState<Location.LocationObject | null>(
+        null
+    );
+    useEffect(() => {
+        async function getCurrentLocation() {
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== "granted") {
+                setErrorMsg("Permission to access location was denied");
+                return;
+            }
+
+            let location = await Location.getCurrentPositionAsync({});
+            setLocation(location);
+        }
+
+        getCurrentLocation();
+    }, []);
     const sort = [
         { id: "rmd", name: "Recommended" },
         { id: "plh", name: "Price (low to high)" },
@@ -38,15 +58,15 @@ const FilterCard = ({ filter, setFilter }) => {
     const color = useThemeColor({}, "text");
     const [sorted, setSorted] = useState("rmd");
     const initialValues = {
-        price_range: [1500, 3500],
-        seat: "4-6",
+        price_range: [],
+        seat: "",
         rental_providers: [],
-        energy_source: "gasoline",
-        provider_policy: "free cancellation",
-        distance: "5",
-        rating: "4.0",
-        sort: "rmd",
-        type: "all"
+        energy_source: "",
+        provider_policy: "",
+        distance: "",
+        rating: "",
+        sort: "",
+        type: ""
     };
     useEffect(() => {
         setFilter(initialValues);
@@ -120,8 +140,8 @@ const FilterCard = ({ filter, setFilter }) => {
             }));
             return;
         }
-        const exist = filter.rental_providers.includes(name);
-        const filtered = filter.rental_providers.filter(
+        const exist = filter?.rental_providers?.includes(name);
+        const filtered = filter.rental_providers?.filter(
             p => ![name, "all"].includes(p)
         );
         if (exist) {
@@ -134,7 +154,11 @@ const FilterCard = ({ filter, setFilter }) => {
         }
     };
     const onPressApply = () => {
-        Alert.alert("applied", "your filter has been applied");
+        setParams({
+            location: [location?.coords?.latitude, location?.coords?.longitude],
+            ...filter
+        });
+        setShowModal({ sort: false, filter: false });
     };
     return (
         filter && (
@@ -206,91 +230,100 @@ const FilterCard = ({ filter, setFilter }) => {
                     position="top"
                     title="Filter by"
                 >
-                    <View>
-                        <RenderSlider />
-                        <Accordion title="Seat capacity">
-                            <View className="flex-row items-center flex-wrap">
-                                {["2", "2-4", "5-6", "6+"].map(s => (
-                                    <TouchableOpacity
-                                        key={s}
-                                        className="w-1/3"
-                                        onPress={() =>
-                                            setFilter(prev => ({
-                                                ...prev,
-                                                seat: s
-                                            }))
-                                        }
-                                    >
-                                        <View
-                                            style={{
-                                                backgroundColor:
-                                                    filter.seat === s
-                                                        ? primary
-                                                        : card
-                                            }}
-                                            className="py-2 px-2
+                    <ScrollView className="max-h-96">
+                        <View>
+                            <RenderSlider />
+                            <Accordion title="Seat capacity">
+                                <View className="flex-row items-center flex-wrap">
+                                    {["2", "2-4", "5-6", "6+"].map(s => (
+                                        <TouchableOpacity
+                                            key={s}
+                                            className="w-1/3"
+                                            onPress={() =>
+                                                setFilter(prev => ({
+                                                    ...prev,
+                                                    seat: s
+                                                }))
+                                            }
+                                        >
+                                            <View
+                                                style={{
+                                                    backgroundColor:
+                                                        filter.seat === s
+                                                            ? primary
+                                                            : card
+                                                }}
+                                                className="py-2 px-2
                                     rounded-full flex-row items-center
                             justify-center mx-1 my-1 space-x-1"
-                                        >
-                                            <MaterialCommunityIcons
-                                                name="car-seat"
-                                                size={14}
-                                                color={
-                                                    filter.seat === s
-                                                        ? "white"
-                                                        : iconColor
+                                            >
+                                                <MaterialCommunityIcons
+                                                    name="car-seat"
+                                                    size={14}
+                                                    color={
+                                                        filter.seat === s
+                                                            ? "white"
+                                                            : iconColor
+                                                    }
+                                                />
+                                                <ThemedText>{s}</ThemedText>
+                                            </View>
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+                            </Accordion>
+                            <Accordion title="Rental providers ">
+                                <View className="w-full">
+                                    {top_providers.map(
+                                        ({ id, name, image }) => (
+                                            <TouchableOpacity
+                                                className="w-full"
+                                                onPress={() =>
+                                                    onPressRentalProvider(id)
                                                 }
-                                            />
-                                            <ThemedText>{s}</ThemedText>
-                                        </View>
-                                    </TouchableOpacity>
-                                ))}
-                            </View>
-                        </Accordion>
-                        <Accordion title="Rental providers ">
-                            <View className="w-full">
-                                {top_providers.map(({ id, name, image }) => (
-                                    <TouchableOpacity
-                                        className="w-full"
-                                        onPress={() =>
-                                            onPressRentalProvider(id)
-                                        }
-                                    >
-                                        <View
-                                            className="py-2 px-2
+                                            >
+                                                <View
+                                                    className="py-2 px-2
                                     rounded-full flex-row items-center
                             justify-between mx-1 my-0.5 space-x-1"
-                                        >
-                                            <View className="flex-row items-center space-x-2">
-                                                {image && (
-                                                    <Image
-                                                        resizeMode="contain"
-                                                        className="h-10 w-10"
-                                                        source={image}
+                                                >
+                                                    <View className="flex-row items-center space-x-2">
+                                                        {image && (
+                                                            <Image
+                                                                resizeMode="contain"
+                                                                className="h-10 w-10"
+                                                                source={image}
+                                                            />
+                                                        )}
+                                                        <ThemedText>
+                                                            {name}
+                                                        </ThemedText>
+                                                    </View>
+                                                    <MaterialCommunityIcons
+                                                        name={
+                                                            filter.rental_providers.includes(
+                                                                id
+                                                            )
+                                                                ? "checkbox-marked"
+                                                                : "checkbox-outline"
+                                                        }
+                                                        size={14}
+                                                        color={iconColor}
                                                     />
-                                                )}
-                                                <ThemedText>{name}</ThemedText>
-                                            </View>
-                                            <MaterialCommunityIcons
-                                                name={
-                                                    filter.rental_providers.includes(
-                                                        id
-                                                    )
-                                                        ? "checkbox-marked"
-                                                        : "checkbox-outline"
-                                                }
-                                                size={14}
-                                                color={iconColor}
-                                            />
-                                        </View>
-                                    </TouchableOpacity>
-                                ))}
-                            </View>
-                        </Accordion>
-                        <Accordion title="Energy source">
-                            <View className="flex-row items-center flex-wrap">
-                                {["petrol", "diesel", "electric", "hybrid"].map(
-                                    s => (
+                                                </View>
+                                            </TouchableOpacity>
+                                        )
+                                    )}
+                                </View>
+                            </Accordion>
+                            <Accordion title="Energy source">
+                                <View className="flex-row items-center flex-wrap">
+                                    {[
+                                        "petrol",
+                                        "diesel",
+                                        "electric",
+                                        "hybrid"
+                                    ].map(s => (
                                         <TouchableOpacity
                                             key={s}
                                             className="w-1/3"
@@ -326,150 +359,152 @@ const FilterCard = ({ filter, setFilter }) => {
                                                 <ThemedText>{s}</ThemedText>
                                             </View>
                                         </TouchableOpacity>
-                                    )
-                                )}
-                            </View>
-                        </Accordion>
-                        <Accordion title="Provider policy source">
-                            <View className="flex-row items-center flex-wrap">
-                                {[
-                                    "immediate comfirmation",
-                                    "free cancellation",
-                                    "refundable"
-                                ].map(s => (
-                                    <TouchableOpacity
-                                        key={s}
-                                        className=""
-                                        onPress={() =>
-                                            setFilter(prev => ({
-                                                ...prev,
-                                                provider_policy: s
-                                            }))
-                                        }
-                                    >
-                                        <View
-                                            style={{
-                                                backgroundColor:
-                                                    filter.provider_policy === s
-                                                        ? primary
-                                                        : card
-                                            }}
-                                            className="py-2 px-2
+                                    ))}
+                                </View>
+                            </Accordion>
+                            <Accordion title="Provider policy source">
+                                <View className="flex-row items-center flex-wrap">
+                                    {[
+                                        "immediate comfirmation",
+                                        "free cancellation",
+                                        "refundable"
+                                    ].map(s => (
+                                        <TouchableOpacity
+                                            key={s}
+                                            className=""
+                                            onPress={() =>
+                                                setFilter(prev => ({
+                                                    ...prev,
+                                                    provider_policy: s
+                                                }))
+                                            }
+                                        >
+                                            <View
+                                                style={{
+                                                    backgroundColor:
+                                                        filter.provider_policy ===
+                                                        s
+                                                            ? primary
+                                                            : card
+                                                }}
+                                                className="py-2 px-2
                                     rounded-full flex-row items-center
                             justify-center mx-1 my-1 space-x-1"
+                                            >
+                                                <MaterialCommunityIcons
+                                                    name="registered-trademark"
+                                                    size={14}
+                                                    color={
+                                                        filter.provider_policy ===
+                                                        s
+                                                            ? "white"
+                                                            : iconColor
+                                                    }
+                                                />
+                                                <ThemedText>{s}</ThemedText>
+                                            </View>
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+                            </Accordion>
+                            <Accordion title="Distance">
+                                <View className="flex-row items-center flex-wrap">
+                                    {["1", "2.5", "5", "10"].map(s => (
+                                        <TouchableOpacity
+                                            key={s}
+                                            className=""
+                                            onPress={() =>
+                                                setFilter(prev => ({
+                                                    ...prev,
+                                                    distance: s
+                                                }))
+                                            }
                                         >
-                                            <MaterialCommunityIcons
-                                                name="registered-trademark"
-                                                size={14}
-                                                color={
-                                                    filter.provider_policy === s
-                                                        ? "white"
-                                                        : iconColor
-                                                }
-                                            />
-                                            <ThemedText>{s}</ThemedText>
-                                        </View>
-                                    </TouchableOpacity>
-                                ))}
-                            </View>
-                        </Accordion>
-                        <Accordion title="Distance">
-                            <View className="flex-row items-center flex-wrap">
-                                {["1", "2.5", "5", "10"].map(s => (
-                                    <TouchableOpacity
-                                        key={s}
-                                        className=""
-                                        onPress={() =>
-                                            setFilter(prev => ({
-                                                ...prev,
-                                                distance: s
-                                            }))
-                                        }
-                                    >
-                                        <View
-                                            style={{
-                                                backgroundColor:
-                                                    filter.distance === s
-                                                        ? primary
-                                                        : card
-                                            }}
-                                            className="py-2 px-2
+                                            <View
+                                                style={{
+                                                    backgroundColor:
+                                                        filter.distance === s
+                                                            ? primary
+                                                            : card
+                                                }}
+                                                className="py-2 px-2
                                     rounded-full flex-row items-center
                             justify-center mx-1 my-1 space-x-1"
+                                            >
+                                                <MaterialCommunityIcons
+                                                    name="map-marker-distance"
+                                                    size={14}
+                                                    color={
+                                                        filter.distance === s
+                                                            ? "white"
+                                                            : iconColor
+                                                    }
+                                                />
+                                                <ThemedText>
+                                                    within {s}km
+                                                </ThemedText>
+                                            </View>
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+                            </Accordion>
+                            <Accordion title="Rating">
+                                <View className="flex-row items-center flex-wrap">
+                                    {["4.0", " 4.5", "3.5", "3.0"].map(s => (
+                                        <TouchableOpacity
+                                            key={s}
+                                            className=""
+                                            onPress={() =>
+                                                setFilter(prev => ({
+                                                    ...prev,
+                                                    rating: s
+                                                }))
+                                            }
                                         >
-                                            <MaterialCommunityIcons
-                                                name="map-marker-distance"
-                                                size={14}
-                                                color={
-                                                    filter.distance === s
-                                                        ? "white"
-                                                        : iconColor
-                                                }
-                                            />
-                                            <ThemedText>
-                                                within {s}km
-                                            </ThemedText>
-                                        </View>
-                                    </TouchableOpacity>
-                                ))}
-                            </View>
-                        </Accordion>
-                        <Accordion title="Rating">
-                            <View className="flex-row items-center flex-wrap">
-                                {["4.0", " 4.5", "3.5", "3.0"].map(s => (
-                                    <TouchableOpacity
-                                        key={s}
-                                        className=""
-                                        onPress={() =>
-                                            setFilter(prev => ({
-                                                ...prev,
-                                                rating: s
-                                            }))
-                                        }
-                                    >
-                                        <View
-                                            style={{
-                                                backgroundColor:
-                                                    filter.rating === s
-                                                        ? primary
-                                                        : card
-                                            }}
-                                            className="py-2 px-2
+                                            <View
+                                                style={{
+                                                    backgroundColor:
+                                                        filter.rating === s
+                                                            ? primary
+                                                            : card
+                                                }}
+                                                className="py-2 px-2
                                     rounded-full flex-row items-center
                             justify-center mx-1 my-1 space-x-1"
-                                        >
-                                            <MaterialCommunityIcons
-                                                name="star"
-                                                size={14}
-                                                color={
-                                                    filter.rating === s
-                                                        ? "white"
-                                                        : iconColor
-                                                }
-                                            />
-                                            <ThemedText>
-                                                {s} or higher
-                                            </ThemedText>
-                                        </View>
-                                    </TouchableOpacity>
-                                ))}
-                            </View>
-                        </Accordion>
-                    </View>
-                    <View className="flex-row items-center py-2">
-                        <ThemedButton
-                            className="mr-1"
-                            title="reset"
-                            onPress={() =>
-                                setFilter({ ...initialValues, sort: "rmd" })
-                            }
-                        />
-                        <ThemedButton
-                            title="apply"
-                            className="ml-1"
-                            onPress={onPressApply}
-                        />
-                    </View>
+                                            >
+                                                <MaterialCommunityIcons
+                                                    name="star"
+                                                    size={14}
+                                                    color={
+                                                        filter.rating === s
+                                                            ? "white"
+                                                            : iconColor
+                                                    }
+                                                />
+                                                <ThemedText>
+                                                    {s} or higher
+                                                </ThemedText>
+                                            </View>
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+                            </Accordion>
+                        </View>
+                        <View className="flex-row items-center py-2">
+                            <ThemedButton
+                                className="mr-1"
+                                title="reset"
+                                onPress={() =>
+                                    setFilter({ ...initialValues, sort: "rmd" })
+                                }
+                            />
+                            <ThemedButton
+                                title="apply"
+                                className="ml-1"
+                                onPress={onPressApply}
+                            />
+                        </View>
+                    </ScrollView>
                 </ThemedModal>
             </>
         )

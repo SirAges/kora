@@ -9,7 +9,6 @@ import { useEffect, useState } from "react";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 export default function Layout() {
-    
     const pathname = usePathname();
     const primary = useThemeColor({}, "primary");
     const backgroundColor = useThemeColor({}, "background");
@@ -35,9 +34,8 @@ export default function Layout() {
                 tabBarActiveTintColor: primary
             }}
         >
-            <Tabs.Screen redirect name="index" />
             <Tabs.Screen
-                name="(home)"
+                name="index"
                 options={{
                     title: "Home",
                     tabBarIcon: ({ color, focused }) => (
@@ -51,7 +49,7 @@ export default function Layout() {
             />
 
             <Tabs.Screen
-                name="(cars)"
+                name="cars"
                 options={{
                     title: "Cars",
                     tabBarIcon: ({ color, focused }) => (
@@ -64,7 +62,7 @@ export default function Layout() {
                 }}
             />
             <Tabs.Screen
-                name="(drivers)"
+                name="drivers"
                 options={{
                     title: "Drivers",
                     tabBarIcon: ({ color, focused }) => (
@@ -78,7 +76,7 @@ export default function Layout() {
             />
 
             <Tabs.Screen
-                name="(bookings)"
+                name="bookings"
                 options={{
                     title: "Bookings",
                     tabBarIcon: ({ color, focused }) => (
@@ -87,7 +85,7 @@ export default function Layout() {
                 }}
             />
             <Tabs.Screen
-                name="(profile)"
+                name="profile"
                 options={{
                     title: "Profile",
                     tabBarIcon: ({ color, focused }) => (
@@ -97,6 +95,30 @@ export default function Layout() {
                             color={color}
                         />
                     )
+                }}
+            />
+            <Tabs.Screen
+                name="cars-available"
+                options={{
+                    href: null,
+                }}
+            />
+            <Tabs.Screen
+                name="learn"
+                options={{
+                    href: null,
+                }}
+            />
+            <Tabs.Screen
+                name="plan"
+                options={{
+                    href: null,
+                }}
+            />
+            <Tabs.Screen
+                name="promos"
+                options={{
+                    href: null,
                 }}
             />
         </Tabs>

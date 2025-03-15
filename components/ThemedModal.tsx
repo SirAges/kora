@@ -50,7 +50,7 @@ const ThemedModal: React.FC<ThemedModalProps> = ({
             borderBottomLeftRadius: 10,
             borderBottomRightRadius: 10,
             width: "100%",
-            maxHeight: "70%"
+            //maxHeight: "70%"
         },
         center: {
             borderRadius: 10,

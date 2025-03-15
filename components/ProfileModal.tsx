@@ -119,7 +119,9 @@ const ProfileModal = ({ showModal, setShowModal, option, user }) => {
                             {option}
                         </ThemedText>
                     </View>
-                    <ScrollView>{content}</ScrollView>
+                    <ScrollView showsVerticalScrollIndicator={false}>
+                        {content}
+                    </ScrollView>
                 </SafeAreaView>
             </Modal>
         </>
@@ -134,6 +136,7 @@ const RenderProfile = ({ user, onUpdate }) => {
     const [showImage, setShowImage] = useState<any[]>(false);
 
     const card = useThemeColor({}, "card");
+    const borderColor = useThemeColor({}, "border");
     const [editing, setEditing] = useState(null);
     const [editValue, setEditValue] = useState("");
     const [updateUser, { data, isLoading }] = useUpdateUserMutation();
@@ -273,8 +276,8 @@ const RenderProfile = ({ user, onUpdate }) => {
         <View className="items-center">
             {/* Profile Image */}
             <View
-                className="items-center rounded-full p-1 border
-            border-gray-200 relative"
+                style={{ borderColor }}
+                className="items-center rounded-full p-1 border relative"
             >
                 <TouchableOpacity onPress={() => setShowImage(true)}>
                     <Image
@@ -284,10 +287,10 @@ const RenderProfile = ({ user, onUpdate }) => {
                     />
                 </TouchableOpacity>
                 <View
-                    style={{ backgroundColor: card }}
+                    style={{ backgroundColor: card, borderColor }}
                     className="absolute z-50 bottom-4 right-4 rounded-full
                 border p-1
-                border-gray-200"
+                "
                 >
                     <MaterialCommunityIcons
                         onPress={onPressPictureEdit}
@@ -301,8 +304,9 @@ const RenderProfile = ({ user, onUpdate }) => {
             {/* Render grouped data */}
             {groupedData.map(({ title, data }, index) => (
                 <View
+                    style={{ borderColor }}
                     key={index}
-                    className="mt-4 w-full px-4 border border-gray-200 rounded-md px-2 py-2"
+                    className="mt-4 w-full px-4 border rounded-md px-2 py-2"
                 >
                     <ThemedText className="font-bold text-lg mb-2">
                         {title}
@@ -320,7 +324,10 @@ const RenderProfile = ({ user, onUpdate }) => {
                                     </ThemedText>
 
                                     {editing === key ? (
-                                        <View className="flex-row items-center border rounded-md border-gray-200 px-2 h-10 w-36">
+                                        <View
+                                            style={{ borderColor }}
+                                            className="flex-row items-center border rounded-md  px-2 h-10 w-36"
+                                        >
                                             <Input
                                                 className="rounded flex-1"
                                                 value={editValue}
@@ -414,7 +421,7 @@ const RenderPreference = ({ user }) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const iconColor = useThemeColor({}, "icon");
-
+    const borderColor = useThemeColor({}, "border");
     // Predefined lists with descriptive names and slug values
     const units = [
         { label: "Metric (Meters, Kilograms, Celsius)", value: "metric" },
@@ -542,7 +549,10 @@ const RenderPreference = ({ user }) => {
 
     return (
         <View>
-            <View className="px-2 py-2 rounded-md border border-gray-200 my-3">
+            <View
+                style={{ borderColor }}
+                className="px-2 py-2 rounded-md border  my-3"
+            >
                 <RenderItem
                     title="Country or Region"
                     field={user?.country}
@@ -664,6 +674,7 @@ const RenderNotification = ({ user }) => {
     const iconColor = useThemeColor({}, "icon");
     const color = useThemeColor({}, "text");
     const card = useThemeColor({}, "card");
+    const borderColor = useThemeColor({}, "border");
     const backgroundColor = useThemeColor({}, "background");
 
     const notificationSettings = [
@@ -692,7 +703,10 @@ const RenderNotification = ({ user }) => {
         });
     };
     return (
-        <View className="rounded-md border border-gray-200 px-2 py-2 my-3">
+        <View
+            style={{ borderColor }}
+            className="rounded-md border  px-2 py-2 my-3"
+        >
             <FlatList
                 data={notificationSettings}
                 keyExtractor={(item, index) => item + index}
@@ -758,6 +772,7 @@ const RenderSecurity = ({ user }) => {
     const color = useThemeColor({}, "text");
     const card = useThemeColor({}, "card");
     const danger = useThemeColor({}, "danger");
+    const borderColor = useThemeColor({}, "border");
     const backgroundColor = useThemeColor({}, "background");
     const securitySettings = [
         {
@@ -842,7 +857,10 @@ const RenderSecurity = ({ user }) => {
         });
     };
     return (
-        <View className="rounded-md border border-gray-200 px-2 py-2 my-3">
+        <View
+            style={{ borderColor }}
+            className="rounded-md border  px-2 py-2 my-3"
+        >
             <ThemedText type="title" className="font-semibold capitalize">
                 Enable extra security features
             </ThemedText>
@@ -953,6 +971,7 @@ const RenderSecurity = ({ user }) => {
 
 const RenderPayment = ({ user }) => {
     const iconColor = useThemeColor({}, "icon");
+    const borderColor = useThemeColor({}, "border");
     const [updateUser, { isLoading }] = useUpdateUserMutation();
     const onMethodPress = async slug => {
         const { data, error } = await updateUser({
@@ -971,8 +990,9 @@ const RenderPayment = ({ user }) => {
         <View>
             {paymentMethods.map(({ name, slug, image, description }) => (
                 <TouchableOpacity
+                    style={{ borderColor }}
                     onPress={() => onMethodPress(slug)}
-                    className="flex-row items-center rounded-md border-gray-200 border px-2
+                    className="flex-row items-center rounded-md  border px-2
                         py-2 my-1"
                 >
                     <Image
@@ -1018,6 +1038,7 @@ const RenderAppearance = ({ user }) => {
     const iconColor = useThemeColor({}, "icon");
     const color = useThemeColor({}, "text");
     const card = useThemeColor({}, "card");
+    const borderColor = useThemeColor({}, "border");
     const [updateUser, { data, isLoading }] = useUpdateUserMutation();
     const onSwitchChange = async (value, key) => {
         await updateUser({
@@ -1028,8 +1049,9 @@ const RenderAppearance = ({ user }) => {
     return (
         <View className="py-2">
             <View
+                style={{ borderColor }}
                 className="flex-row items-center justify-between border
-            border-gray-200 py-2 px-2 rounded-md"
+             py-2 px-2 rounded-md"
             >
                 <ThemedText className="font-semibold text-md capitalize">
                     Dark mode
@@ -1057,6 +1079,7 @@ const RenderAppearance = ({ user }) => {
 const RenderHelp = () => {
     const [options, setOptions] = useState({ faqs: true, report: false });
     const iconColor = useThemeColor({}, "icon");
+    const borderColor = useThemeColor({}, "border");
     const [selectedIssue, setSelectedIssue] = useState(null);
     const [selectedFeedback, setSelectedFeedback] = useState(null);
     const [formData, setFormData] = useState({ name: "", description: "" });
@@ -1094,8 +1117,9 @@ const RenderHelp = () => {
         const { id, question, answer } = item;
         return (
             <View
+                style={{ borderColor }}
                 key={id}
-                className="px-2 py-2 rounded-md border-gray-200
+                className="px-2 py-2 rounded-md 
             border my-1 space-y-2"
             >
                 <ThemedText className="font-semibold capitalize">
@@ -1139,8 +1163,9 @@ const RenderHelp = () => {
             {options.report &&
                 reportIssues.map(item => (
                     <TouchableOpacity
+                        style={{ borderColor }}
                         key={item.id}
-                        className="px-2 py-2 rounded-md border-gray-200 border my-1 space-y-2"
+                        className="px-2 py-2 rounded-md  border my-1 space-y-2"
                         onPress={() => setSelectedIssue(item)}
                     >
                         <ThemedText className="text-lg font-semibold">
@@ -1160,7 +1185,7 @@ const RenderHelp = () => {
                 onRequestClose={() => setSelectedIssue(null)}
             >
                 <View className="flex-1 px-2 py-2">
-                    <ScrollView>
+                    <ScrollView showsVerticalScrollIndicator={false}>
                         {selectedIssue && (
                             <View className="h-full p-4 mt-4 rounded-lg shadow">
                                 <ThemedText className="text-lg font-bold text-center py-2">

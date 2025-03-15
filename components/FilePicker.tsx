@@ -32,7 +32,7 @@ export default function FilePicker({
   const iconColor = useThemeColor({}, "icon");
   const pickDocument = async (onChange: (file: any) => void) => {
     const { assets, canceled } = await FilePickerExpo.getDocumentAsync({
-      type: "*/*",
+      type,
       copyToCacheDirectory: true,
       multiple,
     });
@@ -47,9 +47,9 @@ export default function FilePicker({
   };
 
   return (
-    <View className="flex-1 h-24 py-2">
+    <View className="flex-1  py-2">
       <TouchableOpacity
-        className="items-center justify-center flex-1"
+        className="items-center justify-center flex-1 h-24"
         onPress={() => pickDocument(onChange)}
       >
         <Ionicons

@@ -2,16 +2,17 @@ import React, { useState, useEffect } from "react";
 import { View, Text, FlatList } from "react-native";
 import DriverCard from "@/components/DriverCard";
 import ThemedText from "@/components/ThemedText";
+import { useGetDriversQuery } from "@/redux/user/userApiSlice";
 import { users } from "@/lib/data";
 const DriverList = ({ title, params }) => {
-    const [drivers, setDrivers] = useState([]);
-    useEffect(() => {
-        const filtered = users.filter(
-            ({ user_type }) => user_type === "driver"
-        );
-        setDrivers(filtered);
+  const { data, isFetching } = useGetDriversQuery();
+    const [drivers, setDrivers] = useState([]); useEffect(() => {
+        if (data && data !== undefined) {
+            setDrivers(data.data.users);
+        }
         return () => {};
-    }, []);
+    }, [data]);
+ 
 
     const renderItem = ({ item }) => <DriverCard item={item} />;
     return (
