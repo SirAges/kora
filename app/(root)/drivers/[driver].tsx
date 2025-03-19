@@ -4,7 +4,7 @@ import {
     Text,
     StyleSheet,
     ScrollView,
-    TouchableOpacity
+    TouchableOpacity,Linking
 } from "react-native";
 import ThemedCard from "@/components/ThemedCard";
 import ScreenLoader from "@/components/ScreenLoader";
@@ -45,7 +45,8 @@ const Driver = () => {
         }
         return () => {};
     }, [data]);
-
+   
+    
     if (!driver || isFetching) {
         return (
             <ScreenLoader
@@ -55,6 +56,13 @@ const Driver = () => {
             />
         );
     }
+     const onPressContact=()=>{
+       const phoneNumber=`tel:${driver.phone}`
+       Linking.openURL(phoneNumber)
+       
+       
+     }
+   
     return (
         <SafeAreaView style={{ backgroundColor }} className="flex-1 px-4">
             <View className="flex-1 py-2 space-y-2">
@@ -62,9 +70,10 @@ const Driver = () => {
                     <View className="w-full flex-row items-center justify-between px-2">
                         <GoBack />
                         <ThemedText type="title">{`${driver.last_name} ${driver.first_name}`}</ThemedText>
-                        <Ionicons
-                            name="chatbox-outline"
-                            size={24}
+                        <MaterialCommunityIcons
+                      
+                            name="steering"
+                            size={20}
                             color={iconColor}
                         />
                     </View>
@@ -79,19 +88,19 @@ const Driver = () => {
             space-x-2"
                     >
                         <ThemedText
-                            className="bg-gray-200 rounded font-semibold flex-1
+                            className=" rounded font-semibold flex-1
                 text-center text-md py-2 px-2"
                         >
                             EX: {driver?.experience || 12}YRS
                         </ThemedText>
                         <ThemedText
-                            className="bg-gray-200 rounded font-semibold flex-1
+                            className=" rounded font-semibold flex-1
                 text-center text-md py-2 px-2"
                         >
                             {formatAmount(driver?.km_rate || 45)}/KM
                         </ThemedText>
                         <ThemedText
-                            className="bg-gray-200 rounded font-semibold flex-1
+                            className=" rounded font-semibold flex-1
                 text-center text-md py-2 px-2"
                         >
                             {formatAmount(driver?.hourly_rate || 23)}/HR
@@ -104,14 +113,11 @@ const Driver = () => {
                     />
 
                     <ThemedText className="text-justify text-gray-600 leading-5">
-                        Experienced driver with 12 years on the road, safely
-                        transporting passengers and goods for four reputable
-                        companies. Skilled in navigation, vehicle maintenance,
-                        and ensuring timely, secure deliveries.
+                       {driver.description}
                     </ThemedText>
                 </ScrollView>
             </View>
-            <ThemedButton title="Hire me" />
+            <ThemedButton onPress={onPressContact} title="Contact driver" />
         </SafeAreaView>
     );
 };

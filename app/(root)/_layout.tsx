@@ -1,11 +1,14 @@
 import { usePathname, Redirect } from "expo-router";
+import * as Device from "expo-device";
+// import * as Notifications from "expo-notifications";
+import Constants from "expo-constants";
 
 import { Tabs } from "expo-router";
 import { View } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import useAuth from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
-
+import { registerForPushNotificationsAsync } from "@/services/notification";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 export default function Layout() {
@@ -16,7 +19,40 @@ export default function Layout() {
     const { isSignedIn, userId, isOnboarded } = useAuth();
     if (!isOnboarded && isSignedIn) return <Redirect href="(onboard)" />;
     if (!isSignedIn) return <Redirect href="sign-in" />;
+    /* const [expoPushToken, setExpoPushToken] = useState("");
+    const [notification, setNotification] = useState<
+        Notifications.Notification | undefined
+    >(undefined);
+    const notificationListener = useRef<Notifications.EventSubscription>();
+    const responseListener = useRef<Notifications.EventSubscription>();
 
+    useEffect(() => {
+        registerForPushNotificationsAsync()
+            .then(token => setExpoPushToken(token ?? ""))
+            .catch((error: any) => setExpoPushToken(`${error}`));
+
+        notificationListener.current =
+            Notifications.addNotificationReceivedListener(notification => {
+                setNotification(notification);
+            });
+
+        responseListener.current =
+            Notifications.addNotificationResponseReceivedListener(response => {
+                console.log(response);
+            });
+
+        return () => {
+            notificationListener.current &&
+                Notifications.removeNotificationSubscription(
+                    notificationListener.current
+                );
+            responseListener.current &&
+                Notifications.removeNotificationSubscription(
+                    responseListener.current
+                );
+        };
+    }, []);
+*/
     return (
         <Tabs
             detachInactiveScreens
@@ -100,25 +136,25 @@ export default function Layout() {
             <Tabs.Screen
                 name="cars-available"
                 options={{
-                    href: null,
+                    href: null
                 }}
             />
             <Tabs.Screen
                 name="learn"
                 options={{
-                    href: null,
+                    href: null
                 }}
             />
             <Tabs.Screen
                 name="plan"
                 options={{
-                    href: null,
+                    href: null
                 }}
             />
             <Tabs.Screen
                 name="promos"
                 options={{
-                    href: null,
+                    href: null
                 }}
             />
         </Tabs>

@@ -17,7 +17,6 @@ const Index = () => {
     const { data, error, isFetching } = useGetUserBookingsQuery();
     const [bookings, setBookings] = useState([]);
     useEffect(() => {
-        console.log("data", data, error);
 
         if (data && data !== undefined) {
             setBookings(data.data);
@@ -43,6 +42,7 @@ const Index = () => {
 
 export default Index;
 const RenderBooking = ({ item }) => {
+  console.log('item', JSON.stringify(item,null,2))
     const {
         status,
         startDate,
@@ -83,12 +83,13 @@ const RenderBooking = ({ item }) => {
                     </ThemedText>
                 </View>
             </View>
-            {driver && (
+            {driver && (<View>
+            <ThemedText className="font-semibold capitalize">Driver:</ThemedText>
                 <ProviderDetails
-                    user_id={driver || "67c9f7352c82e475cbb8cf65"}
+                    user_id={driver}
                 />
-            )}
-            {!self_driver && (
+           </View> )}
+            {self_driver && (
                 <View className="space-y-2 pb-2">
                     <ThemedText className="font-semibold">Driver:</ThemedText>
                     <ThemedText className="capitalize font-semibold">

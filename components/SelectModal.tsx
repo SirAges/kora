@@ -13,7 +13,7 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { selectCurrentBooking, addToBooking } from "@/redux/globalSlice";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import ProviderInfo from "@/components/ProviderInfo";
+import ProviderDetails from "@/components/ProviderDetails";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ThemedText from "@/components/ThemedText";
@@ -91,7 +91,7 @@ const RenderSelected = ({
 }) => {
     const item = data.find(({ slug }) => slug === selected);
     if (field === "driver") {
-        return <ProviderInfo user_id={selected} onPress={undefined} />;
+        return <ProviderDetails user_id={selected} onPress={undefined} />;
     }
 
     return (
@@ -123,7 +123,7 @@ const RenderItem = ({
     field: string;
     setShowModal: Dispatch<SetStateAction<boolean>>;
 }) => {
-    // console.log("item", item);
+  
     const dispatch = useDispatch();
     const { slug, name, description, image, percentage } = item;
     const onPress = () => {
@@ -179,7 +179,7 @@ const RenderItem = ({
                 </TouchableOpacity>
             );
         case "driver":
-            return <ProviderInfo user_id={item} onPress={onPress} />;
+            return <ProviderDetails user_id={item} onPress={onPress} />;
         default:
             return null;
     }

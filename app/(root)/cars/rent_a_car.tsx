@@ -72,7 +72,7 @@ const RentACar = () => {
         self_driver
     } = useSelector(selectCurrentBooking);
     const booking = useSelector(selectCurrentBooking);
-    console.log("promo_code", promo_code);
+    console.log('booking', JSON.stringify(booking,null,2))
     const [createBooking, { isLoading }] = useCreateBookingMutation();
     const total =
         (fuel_policy.amount +
@@ -81,15 +81,15 @@ const RentACar = () => {
             confirmation_policy.amount +
             car.price_per_day +
             tax) *
-        parseInt(days > 1 ? days : 1);
+        parseInt(days);
 
     const discount = (total * promo_code?.percentage) / 100 || 0;
 
     const totalAmount = total - discount;
-    const onPressRent = async () => {
+    const makeBooking = async () => {
         const newData = {
             days: parseInt(days),
-            pickup_location: car?.pickup_location,
+            pickup_location: booking?.pickup_location,
             dropoff_location: booking?.dropoff_location,
             startDate: booking?.startDate,
             endDate: booking?.endDate,
@@ -97,6 +97,8 @@ const RentACar = () => {
             tax: booking?.tax,
             car_id: car?._id,
             user_id: userId,
+            belongs_to:car.user_id,
+            driver:booking.driver,
             price_per_day: car?.price_per_day,
             insurance_policy: insurance_policy.name,
             confirmation_policy: confirmation_policy.name,
@@ -113,6 +115,18 @@ const RentACar = () => {
             error ? error?.data?.message || error.error : data?.message
         );
     };
+
+const onPressRent = () => {
+  Alert.alert(
+    "Confirm Booking",
+    "Continue booking proccess",
+    [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'OK', onPress: makeBooking },
+    ]
+  );
+};
+
     return (
         <SafeAreaView className="flex-1 px-2" style={{ backgroundColor: card }}>
             <View className="flex-row items-center justify-between">

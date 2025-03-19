@@ -45,8 +45,8 @@ const CarAvailable = () => {
         withDriver,
         startDate,
         endDate,
-        dropoff_location,
-        pickup_location,
+        dropoff_location:[dropoff_location.lat,dropoff_location.lng],
+        pickup_location:[pickup_location.lat,pickup_location.lng],
         ...params
     });
     const backgroundColor = useThemeColor({}, "background");

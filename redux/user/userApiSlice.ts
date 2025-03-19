@@ -2,6 +2,14 @@ import { apiSlice } from "@/app/api/apiSlice";
 import { setDarkMode } from "@/redux/user/userSlice";
 export const userApiSlice = apiSlice.injectEndpoints({
     endpoints: builder => ({
+        createUsers: builder.mutation({
+            query: value => ({
+                url: "/users",
+                method: "POST",
+                body: value
+            }),
+            providesTags: ["USERS"]
+        }),
         getUsers: builder.query({
             query: () => ({
                 url: "/users"
@@ -18,7 +26,7 @@ export const userApiSlice = apiSlice.injectEndpoints({
         }),
         getDrivers: builder.query({
             query: () => ({
-                url: "/drivers"
+                url: "/drivers",params:{user_type:"driver"}
             }),
             providesTags: ["USERS"]
         }),
@@ -138,6 +146,7 @@ export const userApiSlice = apiSlice.injectEndpoints({
 });
 
 export const {
+    useCreateUsersMutation,
     useGetUsersQuery,
     useGetUserQuery,
     useGetDriversQuery,

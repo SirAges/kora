@@ -56,8 +56,6 @@ const ReviewInfo = ({ reviewerId, revieweeId, revieweeType }) => {
             revieweeId,
             ...value
         });
-
-
     });
 
     useEffect(() => {

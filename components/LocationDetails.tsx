@@ -16,6 +16,9 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import ThemedModal from "@/components/ThemedModal";
 import ThemedText from "@/components/ThemedText";
 import Iconicons from "@expo/vector-icons/Ionicons";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { locationSchema, LocationSchemaType } from "@/lib/schema";
 import MapView, { Marker, Polyline, Callout } from "react-native-maps";
 import { getDistance } from "geolib";
 const LocationDetails = ({ pickup_options, dropoff_options }) => {
@@ -40,6 +43,23 @@ const LocationDetails = ({ pickup_options, dropoff_options }) => {
             addToBooking({ days: calculateDateDifference(startDate, endDate) })
         );
     }, [startDate, endDate]);
+    
+    const method = useForm<LocationSchemaType>({
+        resolver:
+        zodResolver(locationSchema.pick({pickup_location:true,dropoff_location:true})),
+        defaultValues:{}
+    });
+    const {
+        control,
+        handleSubmit,
+        reset,
+        setValue,
+        watch,
+        formState: { errors, isLoading }
+    } = method;
+    const onSubmit = (data: LocationSchemaType) => {
+        dispatch(addToBooking(data ));
+    }
     const RenderDate = ({ date }) => {
         if (!date) return null;
 
@@ -103,12 +123,23 @@ const LocationDetails = ({ pickup_options, dropoff_options }) => {
 
                 <DatePicker title="Dropoff date" isStart={false} />
             </View>
-
-            <RenderLocation place={pickup_location} type={"pickup_location"} />
-            <RenderLocation
-                place={dropoff_location}
-                type={"dropoff_location"}
+ <CustomFormField
+                fieldType={FormFieldType.SUGGESTION}
+                control={control}
+                leftIconName="location"
+                position="bottom"
+                label="pickup location"
+                name="pickup_location"
             />
+            <CustomFormField
+                fieldType={FormFieldType.SUGGESTION}
+                control={control}
+                leftIconName="location"
+                position="bottom"
+                label="dropoff location"
+                name="dropoff_location"
+            />
+          
             <MapView
                 className="w-full rounded-md h-56"
                 initialRegion={{

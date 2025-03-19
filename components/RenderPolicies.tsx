@@ -28,7 +28,7 @@ const RenderPolicies = ({ policyName, policyData }) => {
             .filter(([key]) => MONEY_KEYS.includes(key)) // Only keep valid money keys
             .reduce(
                 (sum, [, value]) =>
-                    sum + (typeof value === "number" ? value : 0),
+                    sum + (typeof Number(value) === "number" ? Number(value) : 0),
                 0
             );
 

@@ -2,23 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
     booking: {
-        days: null,
-        dropoff_location: {
-            title: "dropoff location",
-            display_name:
-                "Wuse, Municipal Area Council, Federal Capital Territory, Nigeria",
-            lat: 9.0620454,
-            lng: 7.4665551
-        },
-        endDate: new Date(),
-        startDate: new Date(),
-        pickup_location: {
-            title: "pickup location",
-            display_name:
-                "Nyanya, Municipal Area Council, Federal Capital Territory, Nigeria",
-            lat: 9.0212556,
-            lng: 7.5699144
-        },
+       
         tax:12
     }
 };

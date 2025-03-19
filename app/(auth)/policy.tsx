@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView } from "react-native";
+import { ScrollView ,View} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import ThemedView from "@/components/ThemedView";
@@ -10,9 +10,9 @@ const Policy = () => {
     const backgroundColor = useThemeColor({}, "background");
 
     return (
-        <SafeAreaView style={{ backgroundColor }} className="flex-1">
-            <ScrollView className="p-4">
-                <ThemedView>
+        <SafeAreaView style={{ backgroundColor }} className="flex-1 py-2 px-4">
+            <ScrollView showsVerticalScrollIndicator={false}>
+                <View>
                     <ThemedText className="text-xl font-bold mb-4">
                         Terms and Conditions
                     </ThemedText>
@@ -32,6 +32,7 @@ const Policy = () => {
                         legally registered.
                         {"\n"}- Drivers must have a valid license and follow
                         traffic laws.
+                        {"\n"}
                     </ThemedText>
 
                     <ThemedText className="font-semibold mt-4">
@@ -72,6 +73,7 @@ const Policy = () => {
                         {"\n"}- Vehicle and Driver Information
                         {"\n"}- Payment Details (processed securely)
                         {"\n"}- Location Data for tracking rentals
+                           {"\n"}
                     </ThemedText>
 
                     <ThemedText className="font-semibold mt-4">
@@ -81,6 +83,7 @@ const Policy = () => {
                         - To provide and improve services.
                         {"\n"}- To verify user identity and prevent fraud.
                         {"\n"}- To process payments securely.
+                           {"\n"}
                     </ThemedText>
 
                     <ThemedText className="font-semibold mt-4">
@@ -115,7 +118,7 @@ const Policy = () => {
                         Kora may update these terms, and users will be notified
                         of significant changes.
                     </ThemedText>
-                </ThemedView>
+                </View>
             </ScrollView>
         </SafeAreaView>
     );

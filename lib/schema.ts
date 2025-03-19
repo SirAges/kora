@@ -77,7 +77,7 @@ const driverSchema = baseUserSchema.extend({
     km_rate: z.coerce.number().min(0, "Km rate is required"),
     description: z.string().min(5, "let us know you briefly").max(200),
     car_types: z.array(z.string()).min(1, "At least one car type is required"),
- address: z.string().min(1, "Address is required"),
+    address: z.string().min(1, "Address is required"),
     emergency_name: z.string().min(1, "Emergency contact name is required"),
     emergency_phone: z.string().min(10, "Emergency contact phone is required"),
     emergency_relationship: z.string().min(1, "Relationship is required")
@@ -88,14 +88,16 @@ const personalRenterSchema = baseUserSchema.extend({
     user_type: z.literal("car_owner"),
     profile_image: FileSchema,
     last_name: z.string().min(1, "Full name is required").trim(),
-    first_name: z.string().min(1, "Full name is required").trim(), address: z.string().min(1, "Address is required")
+    first_name: z.string().min(1, "Full name is required").trim(),
+    address: z.string().min(1, "Address is required")
 });
 
 const renterSchema = baseUserSchema.extend({
     user_type: z.literal("renter"),
     profile_image: FileSchema,
     last_name: z.string().min(1, "Full name is required").trim(),
-    first_name: z.string().min(1, "Full name is required").trim(), address: z.string().min(1, "Address is required")
+    first_name: z.string().min(1, "Full name is required").trim(),
+    address: z.string().min(1, "Address is required")
 });
 
 // ** Dynamic Schema Based on User Type **
